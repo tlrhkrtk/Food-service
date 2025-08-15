@@ -1,0 +1,28 @@
+$white-color:#fff;
+$black-color:#000;
+$body-bg-color:#fbfbfb;
+$navbar-color:#f16121;
+$navbar-light-color:#f59164;
+.text-white {
+    color: #fff;
+}
+
+a.text-white:hover,
+a.text-white:focus {
+    color: #00ff11;
+}
+
+.text-middle {
+    vertical-align: middle;
+}
+
+.section-padding {
+    padding-top: 50px;
+    padding-bottom: 50px;
+}
+
+@mixin section-title($color) {
+    font-size: 55px;
+    color: $color;
+    font-family: "secondary-font";
+}

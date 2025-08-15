@@ -1,0 +1,77 @@
+.link {
+    text-decoration: none;
+    font-size: 14px;
+    line-height: 15px;
+}
+
+.link-default,
+.link-default:active,
+.link-default:focus {
+    color: #2b2c2f;
+}
+
+.link-default:hover {
+    color: #f16121;
+}
+
+.link-silver-light,
+.link-silver-light:active,
+.link-silver-light:focus {
+    color: #d3d3d6;
+}
+
+.link-silver-light:hover {
+    color: #f16121;
+}
+
+.link-shop.link-white .label-inline {
+    color: #23201e;
+}
+
+.link-shop.link-white .label-inline,
+.link-shop.link-white:active .label-inline,
+.link-shop.link-white:focus .label-inline {
+    background: #fff;
+}
+
+.link-shop.link-white:hover .label-inline {
+    background: #f16121;
+    color: #fff;
+}
+
+.link-shop.link-primary .label-inline {
+    color: #fff;
+}
+
+.link-shop.link-primary .label-inline,
+.link-shop.link-primary:active .label-inline,
+.link-shop.link-primary:focus .label-inline {
+    background: #f16121;
+}
+
+.link-shop.link-primary:hover .label-inline {
+    background: #74706f;
+    color: #fff;
+}
+
+.link-shop-variant-1 {
+    width: 50px;
+    height: 50px;
+    line-height: 48px;
+}
+
+.link-shop-variant-1 .label-inline {
+    top: 3px;
+    left: 1px;
+    color: #fff;
+    background: #f16121;
+    z-index: 5;
+}
+
+.link-shop-variant-1.link-primary:hover {
+    color: #f16121;
+}
+
+.link-shop-variant-1.link-primary:hover .label-inline {
+    background: #f16121;
+}

@@ -1,0 +1,51 @@
+@font-face {
+    font-family: "primary-font";
+    src: url("../fonts/farsi-fonts/iran-yekan-500.eot");
+    src: url("../fonts/farsi-fonts/iran-yekan-500.eot?#iefix") format("embedded-opentype"), url("../fonts/farsi-fonts/iran-yekan-500.woff2") format("woff2"), url("../fonts/farsi-fonts/iran-yekan-500.woff") format("woff"), url("../fonts/farsi-fonts/iran-yekan-500.ttf") format("truetype");
+    font-weight: 500;
+}
+
+@font-face {
+    font-family: "secondary-font";
+    src: url("../fonts/farsi-fonts/pinar-700.eot");
+    src: url("../fonts/farsi-fonts/pinar-700.eot?#iefix") format("embedded-opentype"), url("../fonts/farsi-fonts/pinar-700.woff2") format("woff2"), url("../fonts/farsi-fonts/pinar-700.woff") format("woff"), url("../fonts/farsi-fonts/pinar-700.ttf") format("truetype");
+    font-weight: 700;
+}
+
+@font-face {
+    font-family: 'Glyphicons Halflings';
+    src: url("../fonts/glyphicons-halflings-regular.eot");
+    src: url("../fonts/glyphicons-halflings-regular.eot?#iefix") format("embedded-opentype"), url("../fonts/glyphicons-halflings-regular.woff2") format("woff2"), url("../fonts/glyphicons-halflings-regular.woff") format("woff"), url("../fonts/glyphicons-halflings-regular.ttf") format("truetype"), url("../fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular") format("svg");
+}
+
+@font-face {
+    font-family: 'FontAwesome';
+    src: url('../fonts/fontawesome-webfont.eot?v=4.7.0');
+    src: url('../fonts/fontawesome-webfont.eot?#iefix&v=4.7.0') format('embedded-opentype'), url('../fonts/fontawesome-webfont.woff2?v=4.7.0') format('woff2'), url('../fonts/fontawesome-webfont.woff?v=4.7.0') format('woff'), url('../fonts/fontawesome-webfont.ttf?v=4.7.0') format('truetype'), url('../fonts/fontawesome-webfont.svg?v=4.7.0#fontawesomeregular') format('svg');
+    font-weight: normal;
+    font-style: normal
+}
+
+@font-face {
+    font-family: "Material Design Icons";
+    src: url("../fonts/materialdesignicons-webfont.eot?v=1.4.57");
+    src: url("../fonts/materialdesignicons-webfont.eot?#iefix&v=1.4.57") format("embedded-opentype"), url("../fonts/materialdesignicons-webfont.woff2?v=1.4.57") format("woff2"), url("../fonts/materialdesignicons-webfont.woff?v=1.4.57") format("woff"), url("../fonts/materialdesignicons-webfont.ttf?v=1.4.57") format("truetype"), url("../fonts/materialdesignicons-webfont.svg?v=1.4.57#materialdesigniconsregular") format("svg");
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Thin Regular';
+    src: url("../fonts/Thin-Regular.eot?66413286");
+    src: url("../fonts/Thin-Regular.eot?66413286#iefix") format("embedded-opentype"), url("../fonts/Thin-Regular.woff?66413286") format("woff"), url("../fonts/Thin-Regular.ttf?66413286") format("truetype"), url("../fonts/Thin-Regular.svg?66413286#thin") format("svg");
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Restaurant Regular';
+    src: url("../fonts/Restaurant-Regular.eot?87209526");
+    src: url("../fonts/Restaurant-Regular.eot?87209526#iefix") format("embedded-opentype"), url("../fonts/Restaurant-Regular.woff?87209526") format("woff"), url("../fonts/Restaurant-Regular.ttf?87209526") format("truetype"), url("../fonts/Restaurant-Regular.svg?87209526#mercury") format("svg");
+    font-weight: normal;
+    font-style: normal;
+}

@@ -123,6 +123,8 @@ function renderProducts(group) {
       renderProductDetails(product);
     });
   });
+
+  container.scrollIntoView({ behavior: "smooth" });
 }
 
 // =================================================================================================================

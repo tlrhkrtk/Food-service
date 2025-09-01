@@ -23,9 +23,10 @@ window.addEventListener("scroll", function () {
     }
 });
 
+
 // =================================================================================================================
 
-// Event delegation برای کارت‌های داینامیک
+// Event delegate for dynamic cards..
 function attachFoodBoxEvents(containerSelector) {
     const container = document.querySelector(containerSelector);
 

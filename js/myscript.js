@@ -50,7 +50,7 @@ function attachFoodBoxEvents(containerSelector) {
         const box = e.target.closest('.food-box');
         const details = box.querySelector('.product-details');
         if (details) {
-            details.style.display = details.style.display === 'block' ? 'none' : 'block';
+          details.style.display = details.style.display === 'block' ? 'none' : 'block';
         }
         e.stopPropagation();
     });
@@ -91,6 +91,8 @@ function renderGroups(groups) {
       const id = e.target.dataset.id;
       const group = groups.find(g => g.group_id == id);
       renderProducts(group);
+    
+
     });
   });
 }
@@ -99,63 +101,68 @@ function renderGroups(groups) {
 
 // Display products of a group..
 function renderProducts(group) {
-  const container = document.getElementById("group-products");
-  container.innerHTML = "";
-  document.getElementById("group-title").textContent = group.group_title;
+    const container = document.getElementById("group-products");
+    container.innerHTML = "";
 
-  group.group_products.forEach(product => {
-    const box = document.createElement("div");
-    box.className = "food-box";
-    box.innerHTML = `
-      <img src="${product.product_image}" alt="${product.product_name}">
-      <div class="caption">
-        <button data-id="${product.product_id}">${product.product_name}</button>
-      </div>
-    `;
-    container.appendChild(box);
-  });
+    const details = document.getElementById("product-details");
+    details.classList.remove("show"); 
 
-  container.querySelectorAll("button").forEach(btn => {
-    btn.addEventListener("click", e => {
-      e.stopPropagation();
-      const id = e.target.dataset.id;
-      const product = group.group_products.find(p => p.product_id == id);
-      renderProductDetails(product);
+    document.getElementById("group-title").textContent = group.group_title;
+
+    group.group_products.forEach(product => {
+        const box = document.createElement("div");
+        box.className = "food-box";
+        box.innerHTML = `
+          <img src="${product.product_image}" alt="${product.product_name}">
+          <div class="caption">
+            <button data-id="${product.product_id}">${product.product_name}</button>
+          </div>
+        `;
+        container.appendChild(box);
     });
-  });
 
-  container.scrollIntoView({ behavior: "smooth" });
+    container.querySelectorAll("button").forEach(btn => {
+        btn.addEventListener("click", e => {
+            e.stopPropagation();
+            const id = e.target.dataset.id;
+            const product = group.group_products.find(p => p.product_id == id);
+            renderProductDetails(product);
+        });
+    });
+
+  container.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 // =================================================================================================================
 
 // Display product details in static HTML with links..
+const details = document.getElementById("product-details");
+const closeBtn = document.getElementById("close-details");
+
+closeBtn.addEventListener("click", () => {
+    details.classList.remove("show"); 
+});
+
+// Display product details..
 function renderProductDetails(product) {
-  const details = document.getElementById("product-details");
+    document.getElementById("product-image").src = product.product_image;
+    document.getElementById("product-image").alt = product.product_name;
+    document.getElementById("product-link").href = product.product_image;
+    document.getElementById("product-name").textContent = product.product_name;
+    document.getElementById("product-price").textContent = "قیمت: " + product.product_price.toLocaleString() + " تومان";
 
-  // Photo and link
-  const img = document.getElementById("product-image");
-  const link = document.getElementById("product-link");
-  img.src = product.product_image; 
-  img.alt = product.product_name;
-  link.href = product.product_image; 
+    const contentList = document.getElementById("product-content");
+    contentList.innerHTML = "";
+    product.product_content.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        contentList.appendChild(li);
+    });
 
-  // Name and price
-  document.getElementById("product-name").textContent = product.product_name;
-  document.getElementById("product-price").textContent = "قیمت: " + product.product_price.toLocaleString() + " تومان";
-
-  // Contents
-  const contentList = document.getElementById("product-content");
-  contentList.innerHTML = "";
-  product.product_content.forEach(item => {
-    const li = document.createElement("li");
-    li.textContent = item;
-    contentList.appendChild(li);
-  });
-
-  details.style.display = "block";
-  details.scrollIntoView({behavior: "smooth"});
+    details.classList.add("show"); 
+    details.scrollIntoView({ behavior: "smooth", block: "start" });
 }
+
 
 
 

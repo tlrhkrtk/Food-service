@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fa">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/mystyle.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/7.0.96/css/materialdesignicons.min.css">
+</head>
+
+    <body class="product-page">
+        <!-- Header -->
+        <header class="container page-head">
+            <div class="top-menu">
+                <div class="top-menu-aside-right">
+                    <img src="../images/brand-232x49.png" alt="" width="232" height="49">
+                </div>
+                <div class="top-menu-aside-left">
+                    <ul class="list-links">
+                        <li class="list-item">
+                            <div class="unit-horizontal">
+                                <div class="unit-right">
+                                    <span class="icon icon-circle icon-gray-dark icon-xs mdi mdi-map-marker text-middle"></span>
+                                </div>
+                                <div class="unit-left">
+                                    <a href="#" class="link link-default">
+                                        ملایر، خیابان شهدا
+                                        <br>
+                                        مجتمع صدف ، طبقه 3
+                                    </a>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-item">
+                            <div class="unit-horizontal">
+                                <div class="unit-right">
+                                    <span class="icon icon-circle icon-gray-dark icon-xs mdi mdi-phone text-middle"></span>
+                                </div>
+                                <div class="unit-left">
+                                    <a href="callto:#" class="link link-default">
+                                        989123456789+
+                                        <br>
+                                        شنبه تا پنجشنبه: 8 صبح - 10 شب
+                                    </a>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-item">
+                            <ul class="list-inline">
+                                <li><a href="#" class="link link-silver-light" title="Instagram"><span class="icon icon-md-mod-1 mdi mdi-instagram"></span></a></li>
+                                <li><a href="#" class="link link-silver-light" title="Facebook"><span class="icon icon-md-mod-1 mdi mdi-facebook"></span></a></li>
+                                <li><a href="#" class="link link-silver-light" title="Twitter"><span class="icon icon-md-mod-1 mdi mdi-twitter"></span></a></li>
+                                <li><a href="#" class="link link-silver-light" title="Linkedin"><span class="icon icon-md-mod-1 mdi mdi-linkedin"></span></a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navbar -->
+        <div class="navbar-box" id="navbar-box">
+            <div class="navbar container" id="navbar">
+                <ul class="navbar-nav">
+                    <li class="active"><a class="link active" href="index.html">خانه</a></li>
+                    <li><a class="link" href="../about.html">درباره ما</a></li>
+                    <li><a class="link" href="#">منو</a></li>
+                    <li><a class="link" href="#">صفحات</a></li>
+                    <li><a class="link" href="#">گالری</a></li>
+                    <li><a class="link" href="../contacts.html">تماس</a></li>
+                    <li><a class="link" href="#">اخبار</a></li>
+                </ul>
+                <div class="navbar-shop">
+                    <a href="#" class="link link-shop link-default">
+                        <span class="icon icon-sm mdi mdi-cart-outline"></span>
+                        <span class="text-white">(2)</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- End Header -->
+
+        <div class="navbar-shop">
+        <a href="#" class="link link-shop link-default">
+            <span class="icon icon-sm mdi mdi-cart-outline"></span>
+            <span class="text-white">(2)</span>
+        </a>
+        
+        <span id="top-badge" class="top-badge" aria-hidden="true"></span>
+        </div>
+
+        <!-- Slider -->
+        <section>
+        <div id="slider" class="slider">
+            <div id="slide-one">
+            <div class="slider-text">
+                <h1 id="hero-name" class="hero-name">خدمات ارسال غذا</h1>
+                
+            </div>
+
+            <!-- breadcrumb -->
+            <div class="hero-breadcrumb" aria-label="مسیر صفحه">
+                <a href="../pages/index1.html">خانه</a>
+                <span aria-hidden="true">&#x21D0;</span>
+                <a href="../pages/index1.html">منو</a>
+                <span aria-hidden="true">&#x21D0;</span>
+                <span id="breadcrumb-name" class="breadcrumb-name">عنوان محصول</span>
+            </div>
+            </div>
+        </div>
+        </section>
+
+
+
+        <!-- Product Details Modal / Panel -->
+        <section id="product-details" class="pd-wrapper" aria-hidden="true">
+        <button id="close-details"></button>
+
+        <!-- Large image -->
+        <div class="pd-left">
+            <div id="image_large" class="image-large">
+            
+            <img id="product-image" src="" alt="تصویر محصول" />
+            </div>
+
+            <div id="image_small" class="image-small" aria-label="تصاویر کوچک">
+           
+            </div>
+        </div>
+
+        <!-- Product Information -->
+        <div class="pd-right">
+            <h3 class="pd-title" id="product-name">نام محصول</h3>
+
+            <div id="selected-price" class="selected-price" aria-live="polite">قیمت انتخاب‌شده: —</div>
+
+            <div id="price-box" class="pd-price-box" role="list" aria-label="قیمت‌ها (سایزها)">
+            
+            </div>
+
+            <!-- Energy / Protein -->
+            <div class="pd-stats">
+            <div class="stat-row">
+                <div class="stat-label">انرژی</div>
+                <div class="stat-bar">
+                <div id="energy-bar" class="bar-fill"></div>
+                </div>
+                <div id="energy-value" class="stat-value">0%</div>
+            </div>
+
+            <div class="stat-row">
+                <div class="stat-label">پروتئین</div>
+                <div class="stat-bar">
+                <div id="protein-bar" class="bar-fill"></div>
+                </div>
+                <div id="protein-value" class="stat-value">0%</div>
+            </div>
+            </div>
+
+            <!-- Contents -->
+            <ul id="product-content" class="pd-list" aria-label="محتویات محصول"></ul>
+
+            <div class="pd-actions">
+            <button id="add-to-cart" class="pd-back" type="button">افزودن به سبد</button>
+            <a id="product-link" href="../pages/index1.html" class="pd-back">بازگشت به منو</a>
+            </div>
+        </div>
+        </section>
+
+        <script src="../js/myscript.js"></script>
+ 
+    </body>
+</html>

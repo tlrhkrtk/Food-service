@@ -839,14 +839,11 @@ html *:last-child {
   width: 0%; 
 }
 
-
-
 .image-small img.active{
   border-color: var(--color-main);
   transform: scale(1.03);
   box-shadow: 0 6px 18px rgba(0,0,0,0.08);
 }
-
 
 .price-card {
   transition: transform .12s ease, box-shadow .12s ease, border-color .12s;
@@ -940,3 +937,71 @@ html *:last-child {
   .hero-name { font-size: 2.2rem; padding: 12px 16px; }
   .hero-breadcrumb { font-size: 0.95rem; }
 }
+
+
+/* Quantity Selector */
+.qty-selector {
+  display: inline-flex;
+  align-items: center;
+  border: 2px solid #eee;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-left: 10px;
+}
+
+.qty-selector button {
+  background: var(--color-main);
+  color: #fff;
+  border: none;
+  width: 40px;
+  height: 40px;
+  font-size: 1.4rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background .2s ease;
+}
+.qty-selector button:hover {
+  background: var(--color-main-dark);
+}
+
+#qty-value {
+  display: inline-block;
+  width: 50px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--color-title);
+}
+
+/* Primary Add-to-cart button */
+.pd-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 15px;
+  color: var(--pd-on-accent);
+  background: linear-gradient(180deg, var(--pd-accent), var(--pd-accent-2));
+  box-shadow: 0 12px 30px rgba(31,143,107,0.18);
+  transition: transform var(--pd-transition), box-shadow var(--pd-transition), opacity var(--pd-transition);
+  white-space: nowrap;
+}
+
+/* subtle icon-ish micro animation on hover */
+.pd-btn-primary:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 44px rgba(31,143,107,0.22);
+}
+.pd-btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 8px 20px rgba(31,143,107,0.12);
+}
+.pd-btn-primary:focus {
+  outline: 3px solid rgba(31,143,107,0.16);
+  outline-offset: 4px;
+}
+

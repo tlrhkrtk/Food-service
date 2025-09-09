@@ -82,85 +82,32 @@
     </div>
     <!-- End Header -->
 
-    <!-- Slider / Hero -->
-    <section>
-        <div id="slider" class="slider">
-            <div id="slide-one">
-                <div class="slider-text">
-                    <h1 id="hero-name" class="hero-name"></h1>
-                </div>
 
-                <!-- breadcrumb -->
-                <div class="hero-breadcrumb" aria-label="مسیر صفحه">
-                    <a href="../pages/index1.html">خانه</a>
-                    <span aria-hidden="true">&#x21D0;</span>
-                    <a href="../pages/index1.html">منو</a>
-                    <span aria-hidden="true">&#x21D0;</span>
-                    <span id="breadcrumb-name" class="breadcrumb-name">عنوان محصول</span>
-                </div>
-            </div>
-        </div>
-    </section>
 
-    <!-- Product Details Modal / Panel -->
-    <section id="product-details" class="pd-wrapper" aria-hidden="true">
-        <button id="close-details"></button>
-
-        <!-- Large image -->
-        <div class="pd-left">
-            <div id="image_large" class="image-large">
-                <img id="product-image" src="" alt="تصویر محصول" />
-            </div>
-
-            <div id="image_small" class="image-small" aria-label="تصاویر کوچک"></div>
+      <!-- Main cart container -->
+      <main class="cart-container" role="main" aria-labelledby="cart-title">
+        <div class="cart-head">
+          <h1 id="cart-title">سبد خرید شما</h1>
+          <div class="cart-controls">
+            <button id="btn-clear-cart" class="btn-link" aria-label="خالی کردن سبد">خالی کردن سبد</button>
+          </div>
         </div>
 
-        <!-- Product Information -->
-        <div class="pd-right">
-            <h3 class="pd-title" id="product-name">نام محصول</h3>
-
-            <div id="selected-price" class="selected-price" aria-live="polite">قیمت انتخاب‌شده: —</div>
-
-            <div id="price-box" class="pd-price-box" role="list" aria-label="قیمت‌ها (سایزها)"></div>
-
-            <!-- Energy / Protein -->
-            <div class="pd-stats">
-                <div class="stat-row">
-                    <div class="stat-label">انرژی</div>
-                    <div class="stat-bar">
-                        <div id="energy-bar" class="bar-fill"></div>
-                    </div>
-                    <div id="energy-value" class="stat-value">0%</div>
-                </div>
-
-                <div class="stat-row">
-                    <div class="stat-label">پروتئین</div>
-                    <div class="stat-bar">
-                        <div id="protein-bar" class="bar-fill"></div>
-                    </div>
-                    <div id="protein-value" class="stat-value">0%</div>
-                </div>
-            </div>
-
-            <!-- Contents -->
-            <ul id="product-content" class="pd-list" aria-label="محتویات محصول"></ul>
-
-            <div class="pd-actions">
-                <div class="qty-selector">
-                    <button type="button" id="qty-minus">−</button>
-                    <span id="qty-value">1</span>
-                    <button type="button" id="qty-plus">+</button>
-                </div>
-
-                <button id="add-to-cart" class="pd-btn-primary">
-                    <span class="pd-btn-label">اضافه به سبد</span>
-                    <svg class="pd-cart-icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-                        <path fill="currentColor" d="M7 18a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm10 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2zM7.1 6l.9 2h8.6a1 1 0 0 1 .95 1.32l-1.6 4.8a1 1 0 0 1-.95.68H9.2l-.4 1H19v2H8.6a2 2 0 0 1-1.92-1.45L4.1 4H2V2h3.1l1.9 4z"/></svg>
-                </button>
-            </div>
+        <!-- Cart items -->
+        <div id="cart-body" class="cart-body" aria-live="polite">
+          <!-- JS will render table or empty state here -->
         </div>
-    </section>
-    
+
+        <!-- Summary -->
+        <div id="cart-summary" class="cart-summary" aria-live="polite"></div>
+
+        <!-- Actions -->
+        <div class="cart-actions">
+          <a href="../pages/index1.html" class="pd-back">ادامه خرید</a>
+          <button id="btn-checkout" class="pd-btn-primary">نهایی‌سازی سفارش</button>
+        </div>
+      </main>
+
     <script src="../js/myscript.js"></script>
 </body>
 </html>

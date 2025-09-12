@@ -793,7 +793,237 @@ function renderProductDetails(product, groupId) {
         console.warn("product populate error:", err);
       });
   });
+
+// =================================================================================================================
+
+// Search logic (search for food by name from data.json)
+(function () {
+  const form = document.getElementById("search-form");
+  const input = document.getElementById("search-input");
+  const details = document.getElementById("product-details");
+  const productName = document.getElementById("product-name");
+  const productContent = document.getElementById("product-content");
+  const closeBtn = document.getElementById("close-details");
+
+  if (!form || !input || !details || !productName || !productContent) return;
+
+  let cachedData = null;
+
+  function getData() {
+    if (cachedData) return Promise.resolve(cachedData);
+    return fetch("../data.json", { cache: "no-store" })
+      .then(res => res.json())
+      .then(data => {
+        cachedData = data;
+        return data;
+      });
+  }
+
+  function showProductDetails(product) {
+    productContent.innerHTML = "";
+
+    const titleEl = document.createElement("h3");
+    titleEl.textContent = product.product_name;
+    productContent.appendChild(titleEl);
+
+    const link = document.createElement("a");
+    link.href = `../pages/product.html?group=${product.group_id}&product=${product.product_id}`;
+
+    const img = document.createElement("img");
+    img.src = product.product_image[0] || "";
+    img.alt = product.product_name;
+
+    link.appendChild(img);
+    productContent.appendChild(link);
+
+    details.classList.add("show");
+
+    setTimeout(() => {
+      details.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 50);
+  }
+
+  function searchProducts() {
+    const query = (input.value || "").trim().toLowerCase();
+    if (!query) return;
+
+    getData().then(data => {
+      let results = [];
+
+      (data.product_groups || []).forEach(group => {
+        (group.group_products || []).forEach(product => {
+          if (product.product_name.toLowerCase().includes(query)) {
+            results.push({ ...product, group_id: group.group_id });
+          }
+        });
+      });
+
+      if (results.length) {
+        showProductDetails(results[0]);
+      } else {
+        alert("محصولی پیدا نشد");
+      }
+    });
+  }
+
+  // Enter key
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+    searchProducts();
+  });
+
+  const searchBtn = form.querySelector(".search-btn");
+  searchBtn?.addEventListener("click", searchProducts);
+
+  closeBtn?.addEventListener("click", () => {
+    details.classList.remove("show");
+  });
 })();
+
+// =================================================================================================================
+
+//Entry registration form
+(function(){
+  const tabRegister = document.getElementById('tab-register');
+  const tabLogin = document.getElementById('tab-login');
+  const registerForm = document.getElementById('registerForm');
+  const loginForm = document.getElementById('loginForm');
+  const loginMobile = document.getElementById('loginMobile');
+  const loginPassword = document.getElementById('loginPassword');
+  const passwordError = document.getElementById('passwordError');
+  const strengthBar = document.querySelector('.strength-meter > div');
+
+  // Clear errors
+  function clearErrors(container){
+    container.querySelectorAll('.error').forEach(e => e.textContent = '');
+  }
+
+  function setFieldError(inputEl, message){
+    const fg = inputEl.closest('.form-group');
+    if(!fg) return;
+    const err = fg.querySelector('.error');
+    if(err) err.textContent = message || '';
+  }
+
+  function validateIranMobile(mobile){
+    // 09123456789
+    const pattern = /^09\d{9}$/;
+    return pattern.test(mobile);
+  }
+
+  // REGISTER VALIDATION
+  function validateRegister(){
+    clearErrors(registerForm);
+    let ok = true;
+    const firstname = document.getElementById('firstname');
+    const lastname = document.getElementById('lastname');
+    const mobile = document.getElementById('mobile');
+
+    if(!firstname.value.trim()){ setFieldError(firstname,'نام الزامی است.'); ok=false; }
+    if(!lastname.value.trim()){ setFieldError(lastname,'نام خانوادگی الزامی است.'); ok=false; }
+    if(!validateIranMobile(mobile.value.trim())){
+      setFieldError(mobile,'شماره موبایل معتبر نیست.');
+      ok = false;
+    }
+
+    return ok;
+  }
+
+  // LOGIN VALIDATION
+  function validateLogin(){
+    clearErrors(loginForm);
+    passwordError.textContent = '';
+    let ok = true;
+
+    if(!validateIranMobile(loginMobile.value.trim())){
+      setFieldError(loginMobile,'شماره موبایل معتبر نیست.');
+      ok = false;
+    }
+
+    const val = loginPassword.value;
+    if(!val.trim()){
+      passwordError.textContent = 'رمز عبور الزامی است.';
+      ok = false;
+    } else {
+      const errors = [];
+      if(val.length<8) errors.push("حداقل 8 کاراکتر");
+      if(!/[A-Z]/.test(val)) errors.push("یک حرف بزرگ");
+      if(!/[a-z]/.test(val)) errors.push("یک حرف کوچک");
+      if(!/[0-9]/.test(val)) errors.push("یک عدد");
+      if(!/[@$!%*?&]/.test(val)) errors.push("یک کاراکتر خاص @$!%*?&");
+
+      if(errors.length){
+        passwordError.textContent = 'رمز عبور باید شامل: ' + errors.join('، ');
+        ok = false;
+      }
+    }
+
+    return ok;
+  }
+
+  // Tabs
+  tabRegister.addEventListener('click', ()=>{
+    tabRegister.classList.add('active'); tabLogin.classList.remove('active');
+    registerForm.classList.remove('hidden'); loginForm.classList.add('hidden');
+  });
+  tabLogin.addEventListener('click', ()=>{
+    tabLogin.classList.add('active'); tabRegister.classList.remove('active');
+    loginForm.classList.remove('hidden'); registerForm.classList.add('hidden');
+  });
+
+  // submit 
+  registerForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    if(validateRegister()){
+      alert('ثبت‌نام با موفقیت انجام شد ✅');
+      registerForm.reset();
+    }
+  });
+
+  loginForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    if(validateLogin()){
+      alert('ورود موفقیت‌آمیز ✅');
+      loginForm.reset();
+      passwordError.textContent = '';
+      strengthBar.style.width = '0%';
+    }
+  });
+
+  // toggle eye
+  const toggleBtn = document.querySelector('.toggle-pass');
+  const eyeIcon = document.getElementById('eyeIcon');
+
+  toggleBtn.addEventListener('click', function(){
+    if(loginPassword.type === 'password'){
+      loginPassword.type = 'text';
+      eyeIcon.innerHTML = '<path d="M17.94 17.94A10.1 10.1 0 0 1 12 20c-7 0-11-8-11-8 1.5-2.5 4.5-5.5 11-5.5 1.5 0 3 .25 4.35.75"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+    } else {
+      loginPassword.type = 'password';
+      eyeIcon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+    }
+    loginPassword.focus();
+  });
+
+  // strength meter
+  loginPassword.addEventListener('input', function(){
+    const v = this.value;
+    let score = 0;
+    if(v.length>=8) score++;
+    if(/[A-Z]/.test(v)) score++;
+    if(/[a-z]/.test(v)) score++;
+    if(/[0-9]/.test(v)) score++;
+    if(/[^A-Za-z0-9]/.test(v)) score++;
+    const pct = (score/5)*100;
+    strengthBar.style.width = pct+'%';
+    strengthBar.style.background = pct<40?'#e63946':pct<80?'#f4a261':'#2a9d8f';
+
+    if(passwordError.textContent) passwordError.textContent='';
+  });
+})();
+})();
+
+
 
 
 

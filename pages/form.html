@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fa">
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فرم ورود/ثبت‌نام</title>
+    <link rel="stylesheet" href="../css/mystyle.css">
+    </head>
+    <body>
+        <div class="auth-wrapper">
+        <div class="auth-box animate-pop">
+            <div class="auth-tabs">
+            <button id="tab-register" class="active">ثبت‌نام</button>
+            <button id="tab-login">ورود</button>
+            </div>
+
+            <!-- Registration form -->
+            <form id="registerForm" class="auth-form">
+            <div class="form-group">
+                <input type="text" id="firstname" placeholder="نام" />
+                <small class="error"></small>
+            </div>
+            <div class="form-group">
+                <input type="text" id="lastname" placeholder="نام خانوادگی" />
+                <small class="error"></small>
+            </div>
+            <div class="form-group">
+                <input type="text" id="mobile" placeholder="شماره موبایل (09123456789)" />
+                <small class="error"></small>
+            </div>
+            <button type="submit" class="btn-submit">ثبت‌نام</button>
+            </form>
+
+            <!-- Login form -->
+            <form id="loginForm" class="auth-form hidden">
+            <div class="form-group">
+                <input type="text" id="loginMobile" placeholder="شماره موبایل" />
+                <small class="error"></small>
+            </div>
+
+            <div class="form-group password-field">
+                <button type="button" class="toggle-pass" aria-label="نمایش/مخفی کردن رمز" title="نمایش/مخفی کردن رمز">
+                <!-- SVG eye -->
+                <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                </button>
+                <input type="password" id="loginPassword" placeholder="رمز عبور" />
+                <div class="strength-meter"><div></div></div>
+            </div>
+            <!-- Out-of-box password error message -->
+            <small id="passwordError" class="error password-error"></small>
+
+            <button type="submit" class="btn-submit">ورود</button>
+            <div class="forgot">
+                <a href="#">فراموشی رمز عبور؟</a>
+            </div>
+            </form>
+        </div>
+        </div>
+
+    <script src="../js/myscript.js"></script>
+    </body>
+</html>

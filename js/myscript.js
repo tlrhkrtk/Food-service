@@ -884,6 +884,7 @@ function renderProductDetails(product, groupId) {
 
 //Entry registration form
 (function(){
+
   const tabRegister = document.getElementById('tab-register');
   const tabLogin = document.getElementById('tab-login');
   const registerForm = document.getElementById('registerForm');
@@ -892,13 +893,18 @@ function renderProductDetails(product, groupId) {
   const loginPassword = document.getElementById('loginPassword');
   const passwordError = document.getElementById('passwordError');
   const strengthBar = document.querySelector('.strength-meter > div');
+  const toggleBtn = document.querySelector('.toggle-pass');
+  const eyeIcon = document.getElementById('eyeIcon');
 
-  // Clear errors
+  if(!registerForm && !loginForm) return;
+
   function clearErrors(container){
+    if(!container) return;
     container.querySelectorAll('.error').forEach(e => e.textContent = '');
   }
 
   function setFieldError(inputEl, message){
+    if(!inputEl) return;
     const fg = inputEl.closest('.form-group');
     if(!fg) return;
     const err = fg.querySelector('.error');
@@ -906,22 +912,22 @@ function renderProductDetails(product, groupId) {
   }
 
   function validateIranMobile(mobile){
-    // 09123456789
     const pattern = /^09\d{9}$/;
     return pattern.test(mobile);
   }
 
   // REGISTER VALIDATION
   function validateRegister(){
+    if(!registerForm) return false;
     clearErrors(registerForm);
     let ok = true;
     const firstname = document.getElementById('firstname');
     const lastname = document.getElementById('lastname');
     const mobile = document.getElementById('mobile');
 
-    if(!firstname.value.trim()){ setFieldError(firstname,'نام الزامی است.'); ok=false; }
-    if(!lastname.value.trim()){ setFieldError(lastname,'نام خانوادگی الزامی است.'); ok=false; }
-    if(!validateIranMobile(mobile.value.trim())){
+    if(firstname && !firstname.value.trim()){ setFieldError(firstname,'نام الزامی است.'); ok=false; }
+    if(lastname && !lastname.value.trim()){ setFieldError(lastname,'نام خانوادگی الزامی است.'); ok=false; }
+    if(mobile && !validateIranMobile(mobile.value.trim())){
       setFieldError(mobile,'شماره موبایل معتبر نیست.');
       ok = false;
     }
@@ -931,30 +937,33 @@ function renderProductDetails(product, groupId) {
 
   // LOGIN VALIDATION
   function validateLogin(){
+    if(!loginForm) return false;
     clearErrors(loginForm);
-    passwordError.textContent = '';
+    if(passwordError) passwordError.textContent = '';
     let ok = true;
 
-    if(!validateIranMobile(loginMobile.value.trim())){
+    if(loginMobile && !validateIranMobile(loginMobile.value.trim())){
       setFieldError(loginMobile,'شماره موبایل معتبر نیست.');
       ok = false;
     }
 
-    const val = loginPassword.value;
-    if(!val.trim()){
-      passwordError.textContent = 'رمز عبور الزامی است.';
-      ok = false;
-    } else {
-      const errors = [];
-      if(val.length<8) errors.push("حداقل 8 کاراکتر");
-      if(!/[A-Z]/.test(val)) errors.push("یک حرف بزرگ");
-      if(!/[a-z]/.test(val)) errors.push("یک حرف کوچک");
-      if(!/[0-9]/.test(val)) errors.push("یک عدد");
-      if(!/[@$!%*?&]/.test(val)) errors.push("یک کاراکتر خاص @$!%*?&");
-
-      if(errors.length){
-        passwordError.textContent = 'رمز عبور باید شامل: ' + errors.join('، ');
+    if(loginPassword){
+      const val = loginPassword.value;
+      if(!val.trim()){
+        if(passwordError) passwordError.textContent = 'رمز عبور الزامی است.';
         ok = false;
+      } else {
+        const errors = [];
+        if(val.length<8) errors.push("حداقل 8 کاراکتر");
+        if(!/[A-Z]/.test(val)) errors.push("یک حرف بزرگ");
+        if(!/[a-z]/.test(val)) errors.push("یک حرف کوچک");
+        if(!/[0-9]/.test(val)) errors.push("یک عدد");
+        if(!/[@$!%*?&]/.test(val)) errors.push("یک کاراکتر خاص @$!%*?&");
+
+        if(errors.length && passwordError){
+          passwordError.textContent = 'رمز عبور باید شامل: ' + errors.join('، ');
+          ok = false;
+        }
       }
     }
 
@@ -962,65 +971,417 @@ function renderProductDetails(product, groupId) {
   }
 
   // Tabs
-  tabRegister.addEventListener('click', ()=>{
-    tabRegister.classList.add('active'); tabLogin.classList.remove('active');
-    registerForm.classList.remove('hidden'); loginForm.classList.add('hidden');
-  });
-  tabLogin.addEventListener('click', ()=>{
-    tabLogin.classList.add('active'); tabRegister.classList.remove('active');
-    loginForm.classList.remove('hidden'); registerForm.classList.add('hidden');
-  });
+  if(tabRegister && tabLogin && registerForm && loginForm){
+    tabRegister.addEventListener('click', ()=>{
+      tabRegister.classList.add('active'); tabLogin.classList.remove('active');
+      registerForm.classList.remove('hidden'); loginForm.classList.add('hidden');
+    });
+    tabLogin.addEventListener('click', ()=>{
+      tabLogin.classList.add('active'); tabRegister.classList.remove('active');
+      loginForm.classList.remove('hidden'); registerForm.classList.add('hidden');
+    });
+  }
 
   // submit 
-  registerForm.addEventListener('submit', function(e){
-    e.preventDefault();
-    if(validateRegister()){
-      alert('ثبت‌نام با موفقیت انجام شد ✅');
-      registerForm.reset();
-    }
-  });
+  if(registerForm){
+    registerForm.addEventListener('submit', function(e){
+      e.preventDefault();
+      if(validateRegister()){
+        alert('ثبت‌نام با موفقیت انجام شد ✅');
+        registerForm.reset();
+      }
+    });
+  }
 
-  loginForm.addEventListener('submit', function(e){
-    e.preventDefault();
-    if(validateLogin()){
-      alert('ورود موفقیت‌آمیز ✅');
-      loginForm.reset();
-      passwordError.textContent = '';
-      strengthBar.style.width = '0%';
-    }
-  });
+  if(loginForm){
+    loginForm.addEventListener('submit', function(e){
+      e.preventDefault();
+      if(validateLogin()){
+        alert('ورود موفقیت‌آمیز ✅');
+        loginForm.reset();
+        if(passwordError) passwordError.textContent = '';
+        if(strengthBar) strengthBar.style.width = '0%';
+      }
+    });
+  }
 
   // toggle eye
-  const toggleBtn = document.querySelector('.toggle-pass');
-  const eyeIcon = document.getElementById('eyeIcon');
-
-  toggleBtn.addEventListener('click', function(){
-    if(loginPassword.type === 'password'){
-      loginPassword.type = 'text';
-      eyeIcon.innerHTML = '<path d="M17.94 17.94A10.1 10.1 0 0 1 12 20c-7 0-11-8-11-8 1.5-2.5 4.5-5.5 11-5.5 1.5 0 3 .25 4.35.75"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
-    } else {
-      loginPassword.type = 'password';
-      eyeIcon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
-    }
-    loginPassword.focus();
-  });
+  if(toggleBtn && loginPassword && eyeIcon){
+    toggleBtn.addEventListener('click', function(){
+      if(loginPassword.type === 'password'){
+        loginPassword.type = 'text';
+        eyeIcon.innerHTML = '<path d="M17.94 17.94A10.1 10.1 0 0 1 12 20c-7 0-11-8-11-8 1.5-2.5 4.5-5.5 11-5.5 1.5 0 3 .25 4.35.75"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+      } else {
+        loginPassword.type = 'password';
+        eyeIcon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+      }
+      loginPassword.focus();
+    });
+  }
 
   // strength meter
-  loginPassword.addEventListener('input', function(){
-    const v = this.value;
-    let score = 0;
-    if(v.length>=8) score++;
-    if(/[A-Z]/.test(v)) score++;
-    if(/[a-z]/.test(v)) score++;
-    if(/[0-9]/.test(v)) score++;
-    if(/[^A-Za-z0-9]/.test(v)) score++;
-    const pct = (score/5)*100;
-    strengthBar.style.width = pct+'%';
-    strengthBar.style.background = pct<40?'#e63946':pct<80?'#f4a261':'#2a9d8f';
+  if(loginPassword && strengthBar){
+    loginPassword.addEventListener('input', function(){
+      const v = this.value;
+      let score = 0;
+      if(v.length>=8) score++;
+      if(/[A-Z]/.test(v)) score++;
+      if(/[a-z]/.test(v)) score++;
+      if(/[0-9]/.test(v)) score++;
+      if(/[^A-Za-z0-9]/.test(v)) score++;
+      const pct = (score/5)*100;
+      strengthBar.style.width = pct+'%';
+      strengthBar.style.background = pct<40?'#e63946':pct<80?'#f4a261':'#2a9d8f';
 
-    if(passwordError.textContent) passwordError.textContent='';
-  });
+      if(passwordError && passwordError.textContent) passwordError.textContent='';
+    });
+  }
+
 })();
+
+// =================================================================================================================
+
+//Food self-service script 
+const JSON_PATH = "../data.json";
+const PLACEHOLDER = "";
+const LS_KEY = "__pd_cart_v2__";
+const AUTO_REDIRECT_ON_ADD = false;
+const CART_PAGE = "/pages/cart.html";
+
+let MENU = null;
+let currentProduct = null;
+let dropped = [];
+let sizeIndex = 0;
+let currentGroupId = null;
+
+function fmtCurrency(n) {
+  try { return Number(n).toLocaleString() + " تومان"; }
+  catch { return n + " تومان"; }
+}
+
+function showToast(text = "محصول به سبد اضافه شد", timeout = 1200) {
+  const t = document.getElementById("toast");
+  if (!t) return;
+  t.textContent = text;
+  t.style.display = "block";
+  clearTimeout(t._to);
+  t._to = setTimeout(() => { t.style.display = "none"; }, timeout);
+}
+
+function readMainCart() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY) || "[]"); }
+  catch { return []; }
+}
+
+function writeMainCart(arr) {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(arr || [])); }
+  catch(e) { console.warn("writeMainCart error:", e); }
+
+  document.querySelectorAll("[data-cart-badge]").forEach(el => {
+    const sum = (arr || []).reduce((s, i) => s + (Number(i.qty)||0),0);
+    el.textContent = sum;
+  });
+}
+
+async function loadMenu() {
+  const status = document.getElementById("statusBanner");
+  if (status) status.textContent = "در حال بارگذاری...";
+  try {
+    const res = await fetch(JSON_PATH,{cache:"no-store"});
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    const data = await res.json();
+    if (status) status.style.display="none";
+    return data;
+  } catch(err){
+    if (status) status.textContent = "بارگذاری JSON شکست خورد: " + err.message;
+    console.error("loadMenu error:", err);
+    return null;
+  }
+}
+
+function renderProductList() {
+  const container = document.getElementById("productList");
+  if (!container || !MENU) return;
+  container.innerHTML = "";
+
+  (MENU.product_groups || []).forEach(group => {
+    const gTitle = document.createElement("h4");
+    gTitle.textContent = group.group_title;
+    container.appendChild(gTitle);
+
+    (group.group_products || []).forEach(p => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.textContent = p.product_name;
+      btn.onclick = () => selectProduct(p, group.group_id);
+      container.appendChild(btn);
+    });
+  });
+}
+
+// Product Selection 
+function selectProduct(p, groupId) {
+  if (!p) return;
+  currentProduct = p;
+  currentGroupId = groupId;
+  dropped = [];
+  sizeIndex = 0;
+
+  const titleEl = document.getElementById("productTitle");
+  const subtitleEl = document.getElementById("productSubtitle");
+  const sizeSelect = document.getElementById("sizeSelect");
+  const canvas = document.getElementById("baseCanvas");
+  const clearBtn = document.getElementById("clearBtn");
+  const addBtn = document.getElementById("addToCartBtn");
+  const qtyControls = document.getElementById("qtyControls");
+  const qtyValue = document.getElementById("qtyValue");
+
+  if(titleEl) titleEl.textContent = p.product_name || "محصول";
+  if(subtitleEl) subtitleEl.textContent = "مواد پایه: " + (p.product_content || []).join("، ");
+
+  if(sizeSelect) {
+    sizeSelect.innerHTML = "";
+    (p.product_type || []).forEach((t,i)=>{
+      const opt = document.createElement("option");
+      opt.value = i;
+      const price = p.product_price && p.product_price[i]?p.product_price[i]:0;
+      opt.textContent = `${t} — ${fmtCurrency(price)}`;
+      sizeSelect.appendChild(opt);
+    });
+    sizeSelect.disabled = !(p.product_type && p.product_type.length);
+    sizeSelect.onchange = () => {
+      sizeIndex = parseInt(sizeSelect.value || "0",10);
+      refreshSummary();
+    };
+  }
+
+  if(canvas) canvas.style.backgroundImage = `url(${p.base_image || PLACEHOLDER})`;
+  if(clearBtn) clearBtn.disabled = false;
+  if(addBtn) addBtn.disabled = false;
+  if(qtyControls) qtyControls.style.display = "flex";
+  if(qtyValue) qtyValue.value = 1;
+
+  renderToppingsForProduct(p);
+  renderDropped();
+  refreshSummary();
+}
+
+function renderToppingsForProduct(p) {
+  const container = document.getElementById("toppingsContainer");
+  if (!container || !MENU || !p) return;
+  container.innerHTML = "";
+
+  (p.available_toppings || []).forEach(name=>{
+    const topping = (MENU.toppings || []).find(t => t.name === name);
+    if(!topping) return;
+
+    const card = document.createElement("div");
+    card.className = "topping-card";
+    card.draggable = true;
+    card.dataset.name = name;
+    card.innerHTML = `
+      <img src="${topping.image || PLACEHOLDER}" alt="${name}">
+      <div>${name}</div>
+      <div style="color:var(--muted);margin-top:6px">${fmtCurrency(topping.price)}</div>
+    `;
+    card.ondragstart = e => e.dataTransfer.setData("text/plain", name);
+    card.onclick = () => addToppingAt(name, 150, 150);
+    container.appendChild(card);
+  });
+
+  const canvas = document.getElementById("baseCanvas");
+  if(canvas) {
+    canvas.ondragover = e => e.preventDefault();
+    canvas.ondrop = e => {
+      e.preventDefault();
+      const name = e.dataTransfer.getData("text/plain");
+      const rect = canvas.getBoundingClientRect();
+      addToppingAt(name, e.clientX - rect.left, e.clientY - rect.top);
+    };
+  }
+}
+
+function addToppingAt(name, x, y) {
+  if (dropped.find(d => d.name === name)) return;
+  const canvas = document.getElementById("baseCanvas");
+  if (!canvas) return;
+  const rect = canvas.getBoundingClientRect();
+  dropped.push({ name, x: (x/rect.width)*100, y: (y/rect.height)*100 });
+  renderDropped();
+  refreshSummary();
+
+  const card = document.querySelector(`.topping-card[data-name="${name}"]`);
+  if(card) {
+    card.style.pointerEvents = "none";
+    card.style.opacity = "0.5";
+    card.draggable = false;
+  }
+}
+
+// Display the contents on the canvas
+function renderDropped() {
+  const canvas = document.getElementById("baseCanvas");
+  if (!canvas) return;
+  canvas.innerHTML = "";
+
+  dropped.forEach(d => {
+    const t = (MENU.toppings || []).find(tt => tt.name === d.name);
+    const img = document.createElement("img");
+    img.src = t ? t.image : PLACEHOLDER;
+    img.className = "dropped-item";
+    img.style.left = d.x + "%";
+    img.style.top = d.y + "%";
+    canvas.appendChild(img);
+  });
+}
+
+// Calculate price 
+function calculateTotalPrice() {
+  if (!currentProduct) return 0;
+  const base = Number(currentProduct.product_price ? currentProduct.product_price[sizeIndex] || 0 : 0) || 0;
+  let toppingsCost = 0;
+  dropped.forEach(d => {
+    const t = (MENU.toppings || []).find(tt => tt.name === d.name);
+    if(t) toppingsCost += Number(t.price || 0);
+  });
+  let discount = 0;
+  if(MENU.Discounts) {
+    const disc = (MENU.Discounts || []).find(d => Number(d.group_id) === Number(currentGroupId));
+    if(disc) discount = Number(disc.discount || 0);
+  }
+  const total = base + toppingsCost;
+  return Math.round(total - (total * discount / 100));
+}
+
+function refreshSummary() {
+  const os = document.getElementById("orderSummary");
+  if (!os) return;
+  if(!currentProduct){ os.textContent="هیچ محصولی انتخاب نشده"; return; }
+
+  const base = Number(currentProduct.product_price ? currentProduct.product_price[sizeIndex] || 0 : 0) || 0;
+  let toppingsCost = 0;
+  let energy = Number(currentProduct.product_energy || 0);
+
+  dropped.forEach(d=>{
+    const t = (MENU.toppings || []).find(tt => tt.name === d.name);
+    if(t){ toppingsCost += Number(t.price||0); energy += Number(t.energy||0); }
+  });
+
+  let discount = 0;
+  if(MENU.Discounts) {
+    const disc = (MENU.Discounts || []).find(d => Number(d.group_id) === Number(currentGroupId));
+    if(disc) discount = Number(disc.discount || 0);
+  }
+
+  const total = base + toppingsCost;
+  const finalPrice = Math.round(total - (total*discount/100));
+
+  os.innerHTML=`
+    <div><span>قیمت پایه:</span> <span>${fmtCurrency(base)}</span></div>
+    <div><span>تعداد مخلفات:</span> <span>${dropped.length}</span></div>
+    <div><span>هزینه مخلفات:</span> <span>${fmtCurrency(toppingsCost)}</span></div>
+    <div><span>تخفیف گروه:</span> <span>${discount}%</span></div>
+    <div><strong>جمع کل: ${fmtCurrency(finalPrice)}</strong></div>
+    <div><span class="energy">انرژی کل:</span> <span class="energy">${energy} kcal</span></div>
+  `;
+
+}
+
+function initQtyControls() {
+  const qtyEl = document.getElementById("qtyValue");
+  const plus = document.getElementById("qtyPlus");
+  const minus = document.getElementById("qtyMinus");
+  if(!qtyEl || !plus || !minus) return;
+
+  plus.addEventListener("click", ()=>{ qtyEl.value = Math.max(1, Number(qtyEl.value||1)+1); });
+  minus.addEventListener("click", ()=>{ qtyEl.value = Math.max(1, Number(qtyEl.value||1)-1); });
+  qtyEl.addEventListener("input", ()=>{
+    let v = parseInt(qtyEl.value.replace(/[^\d]/g,"")||"1",10);
+    if(isNaN(v) || v<1) v = 1;
+    qtyEl.value = v;
+  });
+}
+
+//  Add to Cart 
+function addCurrentToMainCart(redirectToCart=false) {
+  if(!currentProduct) return;
+  const qtyEl = document.getElementById("qtyValue");
+  if(!qtyEl) return;
+  const qty = Math.max(1, parseInt(qtyEl.value||"1",10));
+  const priceNumber = calculateTotalPrice();
+  const priceText = fmtCurrency(priceNumber);
+  const item = {
+    group_id: currentGroupId || null,
+    product_id: currentProduct.product_id || currentProduct.id || 0,
+    product_name: currentProduct.product_name || currentProduct.name || "محصول",
+    price_text: priceText,
+    price_number: Number(priceNumber) || 0,
+    qty: qty,
+    image: currentProduct.base_image || (currentProduct.product_image && currentProduct.product_image[0]) || "",
+    size_label: currentProduct.product_type ? (currentProduct.product_type[sizeIndex] || "") : "",
+    toppings: dropped.map(d=>d.name||d)
+  };
+
+  const CART = window.__PD_CART_V2;
+  if(CART && typeof CART.addToCart==="function") {
+    try { 
+      CART.addToCart(item);
+      if(typeof CART.showToast==="function") CART.showToast("محصول به سبد اضافه شد");
+      showToast("محصول به سبد اضافه شد");
+    } catch(err) { console.warn("CART.addToCart failed:",err); }
+  } else {
+    const arr = readMainCart();
+    const keyMatch = it => {
+      try {
+        const a = (it.toppings||[]).slice().sort().join("|");
+        const b = (item.toppings||[]).slice().sort().join("|");
+        return Number(it.product_id)===Number(item.product_id) &&
+               String(it.size_label)===String(item.size_label) &&
+               a===b;
+      } catch { return false; }
+    };
+    const found = arr.find(keyMatch);
+    if(found) found.qty = Number(found.qty||0) + Number(item.qty||0);
+    else arr.push(item);
+    writeMainCart(arr);
+    showToast("محصول به سبد اضافه شد");
+  }
+
+  if(redirectToCart){ setTimeout(()=>{ window.location.href = CART_PAGE; }, 350); }
+}
+
+// Initial Setup
+document.addEventListener("DOMContentLoaded", async ()=>{
+  initQtyControls();
+
+  MENU = await loadMenu();
+  if(!MENU) return;
+
+  const app = document.getElementById("app");
+  if(app) app.style.display = "flex";
+
+  renderProductList();
+  refreshSummary();
+
+  const clearBtn = document.getElementById("clearBtn");
+  if(clearBtn) clearBtn.addEventListener("click", ()=>{
+    dropped = [];
+    renderDropped();
+    refreshSummary();
+
+    document.querySelectorAll(".topping-card").forEach(card => {
+      card.style.pointerEvents = "auto";
+      card.style.opacity = "1";
+      card.draggable = true;
+    });
+  });
+
+  const addBtn = document.getElementById("addToCartBtn");
+  if(addBtn) addBtn.addEventListener("click", e => {
+    e.preventDefault();
+    addCurrentToMainCart(AUTO_REDIRECT_ON_ADD);
+  });
+});
 })();
 
 

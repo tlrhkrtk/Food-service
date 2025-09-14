@@ -1,152 +1,193 @@
 {
   "product_groups": [
-    {
-      "group_id": 1,
-      "group_title": "ساندویچ",
-      "group_image": "../images/burger-7-310x260.png",
-      "group_products": [
-        {
-          "product_id": 1,
-          "product_name": "ژامبون مرغ تنوری",
-          "product_type": ["normal"],
-          "product_price": [95000],
-          "product_image": [
-            "../images/product-01-542x448.png",
-            "../images/product-02-542x448.png",
-            "../images/product-05-542x448.png"
-          ],
-          "product_content": ["ژامبون مرغ", "قارچ", "پنیر", "سس مخصوص"],
-          "product_energy": 45,
-          "product_protein": 83
-        },
-        {
-          "product_id": 2,
-          "product_name": "هات داگ مخصوص",
-          "product_type": ["normal"],
-          "product_price": [100000],
-          "product_image": [
-            "../images/product-01-542x448.png",
-            "../images/product-02-542x448.png",
-            "../images/product-05-542x448.png"
-          ],
-          "product_content": ["هات داگ", "قارچ", "پنیر", "کاهو", "خیارشور", "گوجه"],
-          "product_energy": 45,
-          "product_protein": 83
-        },
-        {
-          "product_id": 3,
-          "product_name": "چیز برگر",
-          "product_type": ["normal", "double"],
-          "product_price": [110000, 155000],
-          "product_image": [
-            "../images/product-01-542x448.png",
-            "../images/product-02-542x448.png",
-            "../images/product-05-542x448.png"
-          ],
-          "product_content": ["همبرگر90 درصد", "پنیر گودا", "سس مخصوص", "گوجه"],
-          "product_energy": 45,
-          "product_protein": 83
-        },
-        {
-          "product_id": 4,
-          "product_name": "رویال برگر",
-          "product_type": ["normal"],
-          "product_price": [193000],
-          "product_image": [
-            "../images/product-01-542x448.png",
-            "../images/product-02-542x448.png",
-            "../images/product-05-542x448.png"
-          ],
-          "product_content": ["همبرگر 90 درصد", "ژامبون گوشت", "قارچ", "پنیر"],
-          "product_energy": 45,
-          "product_protein": 83
-        }
-      ]
-    },
-    {
-      "group_id": 2,
-      "group_title": "پیتزا",
-      "group_image": "../images/pizza-7-310x260.png",
-      "group_products": [
-        {
-          "product_id": 5,
-          "product_name": "پیتزا فیله مرغ",
-          "product_type": ["mini", "normal", "large"],
-          "product_price": [110000, 145000, 210000],
-          "product_image": [
-            "../images/product-01-542x448.png",
-            "../images/product-02-542x448.png",
-            "../images/product-05-542x448.png"
-          ],
-          "product_content": ["فیله مرغ", "قارچ", "فلفل دلمه", "پنیر", "گوجه", "ذرت"],
-          "product_energy": 32,
-          "product_protein": 79
-        },
-        {
-          "product_id": 6,
-          "product_name": "پیتزا پنجره ای مخصوص",
-          "product_type": ["mini", "normal", "large"],
-          "product_price": [125000, 185000, 230000],
-          "product_image": [
-            "../images/product-01-542x448.png",
-            "../product-02-542x448.png",
-            "../images/product-05-542x448.png"
-          ],
-          "product_content": ["ژامبون بره", "قارچ", "پنیر", "گوشت چرخ کرده", "فلفل دلمه"],
-          "product_energy": 45,
-          "product_protein": 83
-        },
-        {
-          "product_id": 7,
-          "product_name": "پیتزا پپرونی",
-          "product_type": ["mini", "normal", "large"],
-          "product_price": [105000, 135000, 190000],
-          "product_image": [
-            "../images/product-01-542x448.png",
-            "../images/product-02-542x448.png",
-            "../images/product-05-542x448.png"
-          ],
-          "product_content": ["کالباس پپرونی", "قارچ", "پنیر", "فلفل دلمه"],
-          "product_energy": 51,
-          "product_protein": 56
-        }
-      ]
-    },
-    {
-      "group_id": 3,
-      "group_title": "کباب",
-      "group_image": "../images/barbecue-7-310x260.png",
-      "group_products": [
-        {
-          "product_id": 8,
-          "product_name": "کوبیده",
-          "product_type": ["single", "double"],
-          "product_price": [45000, 85000],
-          "product_image": [
-            "../images/product-01-542x448.png",
-            "../images/product-02-542x448.png",
-            "../images/product-05-542x448.png"
-          ],
-          "product_content": ["گوشت چرخ کرده", "پیاز", "نمک", "جوش شیرین"],
-          "product_energy": 45,
-          "product_protein": 83
-        },
-        {
-          "product_id": 9,
-          "product_name": "برگ",
-          "product_type": ["normal"],
-          "product_price": [130000],
-          "product_image": [
-            "../images/product-01-542x448.png",
-            "../images/product-02-542x448.png",
-            "../images/product-05-542x448.png"
-          ],
-          "product_content": ["گوشت گوسفندی", "نمک", "آبلیمو"],
-          "product_energy": 45,
-          "product_protein": 83
-        }
-      ]
-    }
+  {
+    "group_id": 1,
+    "group_title": "ساندویچ",
+    "group_image": "../images/burger-7-310x260.png",
+    "group_products": [
+      {
+        "product_id": 1,
+        "product_name": "ژامبون مرغ تنوری",
+        "product_type": ["normal"],
+        "product_price": [95000],
+        "product_image": [
+          "../images/burger-7-310x260.png",
+          "../images/burger-7-310x260.png",
+          "../images/burger-7-310x260.png"
+        ],
+        "base_image": "../images/bg-menu-5.jpg",
+        "product_content": ["ژامبون مرغ", "قارچ", "پنیر", "سس مخصوص"],
+        "product_energy": 45,
+        "product_protein": 83,
+        "available_toppings": ["ژامبون مرغ", "قارچ", "پنیر", "سس مخصوص", "کاهو", "خیارشور", "گوجه"]
+      },
+      {
+        "product_id": 2,
+        "product_name": "هات داگ مخصوص",
+        "product_type": ["normal"],
+        "product_price": [100000],
+        "product_image": [
+          "../images/member-profile-2-1200x800_original.jpg",
+          "../images/member-profile-2-1200x800_original.jpg",
+          "../images/member-profile-2-1200x800_original.jpg"
+        ],
+        "base_image": "../images/member-profile-2-1200x800_original.jpg",
+        "product_content": ["هات داگ", "قارچ", "پنیر", "کاهو", "خیارشور", "گوجه"],
+        "product_energy": 45,
+        "product_protein": 83,
+        "available_toppings": ["هات داگ", "قارچ", "پنیر", "کاهو", "خیارشور", "گوجه", "سس مخصوص", "پیاز"]
+      },
+      {
+        "product_id": 3,
+        "product_name": "چیز برگر",
+        "product_type": ["normal", "double"],
+        "product_price": [110000, 155000],
+        "product_image": [
+          "../images/gallery-2-1200x800_original.jpg",
+          "../images/gallery-2-1200x800_original.jpg",
+          "../images/gallery-2-1200x800_original.jpg"
+        ],
+        "base_image": "../images/gallery-2-1200x800_original.jpg",
+        "product_content": ["همبرگر", "پنیر گودا", "سس مخصوص", "گوجه"],
+        "product_energy": 45,
+        "product_protein": 83,
+        "available_toppings": ["همبرگر", "پنیر گودا", "سس مخصوص", "گوجه", "کاهو", "خیارشور", "پیاز"]
+      },
+      {
+        "product_id": 4,
+        "product_name": "رویال برگر",
+        "product_type": ["normal"],
+        "product_price": [193000],
+        "product_image": [
+          "../images/burgers-5-310x260.png",
+          "../images/burgers-5-310x260.png",
+          "../images/burgers-5-310x260.png"
+        ],
+        "base_image": "../images/burgers-5-310x260.png",
+        "product_content": ["همبرگر", "ژامبون گوشت", "قارچ", "پنیر"],
+        "product_energy": 45,
+        "product_protein": 83,
+        "available_toppings": ["همبرگر", "ژامبون گوشت", "قارچ", "پنیر", "کاهو", "گوجه", "سس مخصوص", "پیاز"]
+      }
+    ]
+  },
+  {
+    "group_id": 2,
+    "group_title": "پیتزا",
+    "group_image": "../images/pizzas-5-310x260.png",
+    "group_products": [
+      {
+        "product_id": 5,
+        "product_name": "پیتزا فیله مرغ",
+        "product_type": ["mini", "normal", "large"],
+        "product_price": [110000, 145000, 210000],
+        "product_image": [
+          "../images/pizzas-5-310x260.png",
+          "../images/pizzas-5-310x260.png",
+          "../images/pizzas-5-310x260.png"
+        ],
+        "base_image": "../images/pizzas-5-310x260.png",
+        "available_toppings": ["فیله مرغ","قارچ","فلفل دلمه","پنیر","گوجه","ذرت"],
+        "product_content": ["فیله مرغ", "قارچ", "فلفل دلمه", "پنیر", "گوجه", "ذرت"],
+        "product_energy": 32,
+        "product_protein": 79
+      },
+      {
+        "product_id": 6,
+        "product_name": "پیتزا پنجره ای مخصوص",
+        "product_type": ["mini", "normal", "large"],
+        "product_price": [125000, 185000, 230000],
+        "product_image": [
+          "../images/pizzas-3-310x260.png",
+          "../images/pizzas-3-310x260.png",
+          "../images/pizzas-3-310x260.png"
+        ],
+        "base_image": "../images/pizzas-3-310x260.png",
+        "available_toppings": ["ژامبون بره","قارچ","پنیر","گوشت چرخ کرده","فلفل دلمه"],
+        "product_content": ["ژامبون بره", "قارچ", "پنیر", "گوشت چرخ کرده", "فلفل دلمه"],
+        "product_energy": 45,
+        "product_protein": 83
+      },
+      {
+        "product_id": 7,
+        "product_name": "پیتزا پپرونی",
+        "product_type": ["mini", "normal", "large"],
+        "product_price": [105000, 135000, 190000],
+        "product_image": [
+          "../images/pizzas-2-310x260.png",
+          "../images/pizzas-2-310x260.png",
+          "../images/pizzas-2-310x260.png"
+        ],
+        "base_image": "../images/pizzas-2-310x260.png",
+        "available_toppings": ["کالباس پپرونی","قارچ","پنیر","فلفل دلمه"],
+        "product_content": ["کالباس پپرونی", "قارچ", "پنیر", "فلفل دلمه"],
+        "product_energy": 51,
+        "product_protein": 56
+      }
+    ]
+  },
+  {
+    "group_id": 3,
+    "group_title": "کباب",
+    "group_image": "../images/gallery-masonry-3-371x587.jpg",
+    "group_products": [
+      {
+        "product_id": 8,
+        "product_name": "کوبیده",
+        "product_type": ["single", "double"],
+        "product_price": [45000, 85000],
+        "product_image": [
+          "../images/gallery-masonry-3-371x587.jpg",
+          "../images/gallery-masonry-3-371x587.jpg",
+          "../images/gallery-masonry-3-371x587.jpg"
+        ],
+        "base_image": "../images/gallery-masonry-3-371x587.jpg",
+        "product_content": ["گوشت چرخ کرده", "پیاز", "سماق", "جوش شیرین"],
+        "product_energy": 45,
+        "product_protein": 83,
+        "available_toppings": ["گوشت چرخ کرده", "پیاز", "سماق", "جوش شیرین","لیمو"]
+      },
+      {
+        "product_id": 9,
+        "product_name": "برگ",
+        "product_type": ["normal"],
+        "product_price": [130000],
+        "product_image": [
+          "../images/gallery-3-1200x800_original.jpg",
+          "../images/gallery-3-1200x800_original.jpg",
+          "../images/gallery-3-1200x800_original.jpg"
+        ],
+        "base_image": "../images/gallery-3-1200x800_original.jpg",
+        "product_content": ["گوشت گوسفندی", "سماق", "آبلیمو"],
+        "product_energy": 45,
+        "product_protein": 83,
+        "available_toppings": ["گوشت گوسفندی", "سماق", "آبلیمو", "پیاز", "روغن زیتون", "برگ رزماری", "جوز هندی", "برگ بو","لیمو"]
+      }
+    ]
+  }
+],
+"toppings": [
+    { "id": 1, "name": "قارچ", "image": "/images/toppings/mushroom.png", "price": 8000, "energy": 6 },
+    { "id": 2, "name": "گوجه", "image": "/images/toppings/tomato.png", "price": 7000, "energy": 5 },
+    { "id": 3, "name": "پنیر", "image": "/images/toppings/cheese.png", "price": 9000, "energy": 40 },
+    { "id": 4, "name": "فیله مرغ", "image": "/images/toppings/chicken_fillet.png", "price": 15000, "energy": 65 },
+    { "id": 5, "name": "ژامبون بره", "image": "/images/toppings/lamb_ham.png", "price": 14000, "energy": 60 },
+    { "id": 6, "name": "کالباس پپرونی", "image": "/images/toppings/pepperoni.png", "price": 12000, "energy": 70 },
+    { "id": 7, "name": "فلفل دلمه", "image": "/images/toppings/bell_pepper.png", "price": 7000, "energy": 8 },
+    { "id": 8, "name": "ذرت", "image": "/images/toppings/corn.png", "price": 6000, "energy": 15 },
+    { "id": 9, "name": "گوشت چرخ کرده", "image": "/images/toppings/minced_meat.png", "price": 16000, "energy": 120 },
+    { "id": 10, "name": "ژامبون مرغ", "image": "/images/toppings/chicken_ham.png", "price": 12000, "energy": 50 },
+    { "id": 11, "name": "کاهو", "image": "/images/toppings/lettuce.png", "price": 5000, "energy": 2 },
+    { "id": 12, "name": "خیارشور", "image": "/images/toppings/pickle.png", "price": 4000, "energy": 3 },
+    { "id": 13, "name": "هات داگ", "image": "/images/toppings/hotdog.png", "price": 10000, "energy": 110 },
+    { "id": 14, "name": "سس مخصوص", "image": "/images/toppings/special_sauce.png", "price": 5000, "energy": 20 },
+    { "id": 15, "name": "همبرگر", "image": "/images/toppings/hamberger.png", "price": 20000, "energy": 250 },
+    { "id": 16, "name": "پنیر گودا", "image": "/images/toppings/gouda_cheese.png", "price": 12000, "energy": 80 },
+    { "id": 17, "name": "ژامبون گوشت", "image": "/images/toppings/beef_ham.png", "price": 15000, "energy": 90 },
+    { "id": 18, "name": "پیاز", "image": "/images/toppings/onion.png", "price": 3000, "energy": 5 },
+    { "id": 19, "name": "لیمو", "image": "/images/toppings/lemon.png", "price": 4000, "energy": 3 },
+    { "id": 20, "name": "گوشت گوسفندی", "image": "/images/toppings/lamb_meat.png", "price": 18000, "energy": 200 },
+    { "id": 21, "name": "سماق", "image": "/images/toppings/sumac.png", "price": 1000, "energy": 0 }
   ],
   "Discounts": [
     { "group_id": 1, "group_title": "ساندویچ", "discount": 20 },
@@ -158,6 +199,4 @@
     { "group_id": 7, "group_title": "دسر", "discount": 35 }
   ]
 }
-
-
 

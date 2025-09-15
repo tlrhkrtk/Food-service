@@ -932,9 +932,174 @@ function renderProductDetails(product, groupId) {
 
 // =================================================================================================================
 
-//Entry registration form
+// myscript.js (unified)
+// - capture clicks site-wide to save returnTo
+// - auth form logic (register/login) with global toast + post-auth redirect
+
 (function(){
 
+
+  //0) CAPTURE: when this script is loaded on ANY page,
+  //watch for clicks to links/buttons that lead to auth form
+  //and save current page to sessionStorage.authReturnTo
+
+  (function captureReturnTo(){
+    try{
+      const authPathKeywords = ['form.html','login','register','auth'];
+      document.addEventListener('click', function(ev){
+        const a = ev.target.closest('a, button');
+        if(!a) return;
+        const href = a.getAttribute && a.getAttribute('href') ? a.getAttribute('href') : '';
+        const cls = a.className || '';
+
+        const looksLikeAuth = (href && authPathKeywords.some(k => href.toLowerCase().includes(k)))
+                              || /open-auth|auth-open|go-auth|open-login|open-register/i.test(cls);
+
+        if(looksLikeAuth){
+          try{
+            sessionStorage.setItem('authReturnTo', location.href);
+            console.log('[auth-capture] saved returnTo ->', location.href);
+          }catch(e){
+            console.warn('[auth-capture] could not save returnTo', e);
+          }
+        }
+      }, true);
+    }catch(e){
+      // silent
+      console.warn('[auth-capture] init failed', e);
+    }
+  })();
+
+
+
+  //Helpers: normalize & validate return target (security)
+  function normalizeAndValidateReturn(value){
+    if(!value) return null;
+    try{
+      const url = new URL(value, location.href); 
+      if(url.origin !== location.origin) return null; 
+      const path = (url.pathname || '').toLowerCase();
+      // avoid redirect back to auth pages themselves
+      if(path.includes('form') || path.includes('login') || path.includes('register') || path.includes('auth')) return null;
+      return url.href;
+    }catch(e){
+      return null;
+    }
+  }
+
+  function getReturnTo(){
+    try{
+      const s = sessionStorage.getItem('authReturnTo');
+      const n = normalizeAndValidateReturn(s);
+      if(n) return n;
+    }catch(e){}
+
+    try{
+      const r = document.referrer;
+      const nref = normalizeAndValidateReturn(r);
+      if(nref) return nref;
+    }catch(e){}
+
+    try{
+      const qp = (new URLSearchParams(location.search)).get('returnTo');
+      const nq = normalizeAndValidateReturn(qp);
+      if(nq) return nq;
+    }catch(e){}
+
+    return null;
+  }
+
+  function performPostAuthRedirect(delayMs = 700){
+    const target = getReturnTo();
+    if(target){
+      console.log('[auth] redirect target determined:', target);
+      try{ sessionStorage.removeItem('authReturnTo'); }catch(e){}
+      setTimeout(()=> { location.href = target; }, delayMs);
+      return true;
+    }
+    return false;
+  }
+
+  //Toast UI (global floating toast container)
+  function ensureToastContainer(){
+    let c = document.querySelector('.global-toast-container');
+    if(!c){
+      c = document.createElement('div');
+      c.className = 'global-toast-container';
+      document.body.appendChild(c);
+    }
+    return c;
+  }
+
+  function createGlobalToast(message, type = 'success', options = {}){
+    const container = ensureToastContainer();
+    const toast = document.createElement('div');
+    toast.className = 'global-toast';
+    const icon = document.createElement('div');
+    icon.className = 'toast-icon';
+    icon.innerHTML = type === 'success' ? 
+      '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#bff3e0" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>' :
+      '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffd3d3" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
+
+    const body = document.createElement('div');
+    body.className = 'toast-body';
+    const title = document.createElement('div');
+    title.className = 'toast-title';
+    title.textContent = options.title || (type === 'success' ? 'موفق' : 'خطا');
+    const text = document.createElement('div');
+    text.className = 'toast-text';
+    text.textContent = message || '';
+
+    body.appendChild(title);
+    body.appendChild(text);
+
+    toast.appendChild(icon);
+    toast.appendChild(body);
+
+    if(options.action && options.action.text){
+      const actWrap = document.createElement('div');
+      actWrap.className = 'toast-action';
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.innerText = options.action.text;
+      btn.addEventListener('click', e=>{
+        e.stopPropagation();
+        if(typeof options.action.onClick === 'function') options.action.onClick();
+      });
+      actWrap.appendChild(btn);
+      toast.appendChild(actWrap);
+    }
+
+    const progWrap = document.createElement('div');
+    progWrap.className = 'toast-progress';
+    const progBar = document.createElement('i');
+    progBar.style.transform = 'scaleX(1)';
+    progWrap.appendChild(progBar);
+    body.appendChild(progWrap);
+
+    container.appendChild(toast);
+    requestAnimationFrame(()=> toast.classList.add('show'));
+
+    const ttl = typeof options.ttl === 'number' ? options.ttl : 4200;
+    progBar.style.transition = `transform ${ttl}ms linear`;
+    setTimeout(()=> progBar.style.transform = 'scaleX(0)', 40);
+
+    const rem = setTimeout(()=>{
+      toast.classList.remove('show');
+      setTimeout(()=> toast.remove(), 320);
+    }, ttl + 80);
+
+    toast.addEventListener('click', ()=>{
+      clearTimeout(rem);
+      toast.classList.remove('show');
+      setTimeout(()=> toast.remove(), 220);
+    });
+
+    return toast;
+  }
+
+
+  //Auth form logic 
   const tabRegister = document.getElementById('tab-register');
   const tabLogin = document.getElementById('tab-login');
   const registerForm = document.getElementById('registerForm');
@@ -945,8 +1110,6 @@ function renderProductDetails(product, groupId) {
   const strengthBar = document.querySelector('.strength-meter > div');
   const toggleBtn = document.querySelector('.toggle-pass');
   const eyeIcon = document.getElementById('eyeIcon');
-
-  if(!registerForm && !loginForm) return;
 
   function clearErrors(container){
     if(!container) return;
@@ -966,7 +1129,6 @@ function renderProductDetails(product, groupId) {
     return pattern.test(mobile);
   }
 
-  // REGISTER VALIDATION
   function validateRegister(){
     if(!registerForm) return false;
     clearErrors(registerForm);
@@ -985,7 +1147,6 @@ function renderProductDetails(product, groupId) {
     return ok;
   }
 
-  // LOGIN VALIDATION
   function validateLogin(){
     if(!loginForm) return false;
     clearErrors(loginForm);
@@ -1008,7 +1169,7 @@ function renderProductDetails(product, groupId) {
         if(!/[A-Z]/.test(val)) errors.push("یک حرف بزرگ");
         if(!/[a-z]/.test(val)) errors.push("یک حرف کوچک");
         if(!/[0-9]/.test(val)) errors.push("یک عدد");
-        if(!/[@$!%*?&]/.test(val)) errors.push("یک کاراکتر خاص @$!%*?&");
+        if(!/[@$!%*?&#%^~|?`]/.test(val)) errors.push("یک کاراکتر خاص @$!%*?&#%^~|?");
 
         if(errors.length && passwordError){
           passwordError.textContent = 'رمز عبور باید شامل: ' + errors.join('، ');
@@ -1020,7 +1181,7 @@ function renderProductDetails(product, groupId) {
     return ok;
   }
 
-  // Tabs
+  // Tabs interaction (only if elements exist)
   if(tabRegister && tabLogin && registerForm && loginForm){
     tabRegister.addEventListener('click', ()=>{
       tabRegister.classList.add('active'); tabLogin.classList.remove('active');
@@ -1032,25 +1193,51 @@ function renderProductDetails(product, groupId) {
     });
   }
 
-  // submit 
+  // register submit
   if(registerForm){
     registerForm.addEventListener('submit', function(e){
       e.preventDefault();
       if(validateRegister()){
-        alert('ثبت‌نام با موفقیت انجام شد ✅');
+        // ONLY toast with profile button — NO auto-redirect
+        createGlobalToast('ثبت‌نام با موفقیت انجام شد ✅', 'success', {
+          title: 'ثبت‌نام انجام شد',
+          ttl: 4200,
+          action: { text: 'مشاهده پروفایل', onClick: ()=> {
+            const possible = document.querySelector('#userMenu, .user-menu, .nav-profile');
+            if(possible){ try{ possible.click(); } catch(e){} }
+            else{ location.href = '/profile'; }
+          }}
+        });
         registerForm.reset();
+        // removed performPostAuthRedirect/fallback — no automatic navigation after register
       }
     });
   }
 
+  // login submit
   if(loginForm){
     loginForm.addEventListener('submit', function(e){
       e.preventDefault();
-      if(validateLogin()){
-        alert('ورود موفقیت‌آمیز ✅');
-        loginForm.reset();
-        if(passwordError) passwordError.textContent = '';
-        if(strengthBar) strengthBar.style.width = '0%';
+      if(!validateLogin()) return;
+
+      createGlobalToast('ورود موفقیت‌آمیز ✅', 'success', { title: 'خوش آمدید', ttl: 1800 });
+
+      loginForm.reset();
+      if(passwordError) passwordError.textContent = '';
+      if(strengthBar) strengthBar.style.width = '0%';
+
+      const redirected = performPostAuthRedirect(700);
+      if(!redirected){
+        setTimeout(()=>{
+          const trySelectors = ['#userMenu', '.user-menu', '.nav-profile', '.profile-toggle', '#profileButton'];
+          for(const s of trySelectors){
+            const el = document.querySelector(s);
+            if(el){ try{ el.click(); }catch(e){}; return; }
+          }
+          try{ location.href = '/profile'; }catch(e){
+            if(/\/product\/|\/details\/|\/items\//i.test(location.pathname)) try{ history.back(); }catch(e){}
+          }
+        }, 700);
       }
     });
   }
@@ -1082,10 +1269,13 @@ function renderProductDetails(product, groupId) {
       const pct = (score/5)*100;
       strengthBar.style.width = pct+'%';
       strengthBar.style.background = pct<40?'#e63946':pct<80?'#f4a261':'#2a9d8f';
-
       if(passwordError && passwordError.textContent) passwordError.textContent='';
     });
   }
+
+  // developer helper exposed (optional)
+  window.authHelpers = window.authHelpers || {};
+  window.authHelpers.setReturnToCurrent = function(){ try{ sessionStorage.setItem('authReturnTo', location.href); }catch(e){} };
 
 })();
 

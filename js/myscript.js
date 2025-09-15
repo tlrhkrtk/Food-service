@@ -863,8 +863,7 @@ function renderProductDetails(product, groupId) {
       container.appendChild(message);
 
       productContent.appendChild(container);
-
-      // مهم: نمایش کادر حتی وقتی چیزی پیدا نشده
+      
       details.classList.add("show");
 
       setTimeout(() => {

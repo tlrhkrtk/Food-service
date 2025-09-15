@@ -2005,13 +2005,9 @@ h4 { margin: 14px 0 8px 0; color: var(--muted); font-size: 1rem; }
   transform: translateY(-3px);
 }
 
-<<<<<<< HEAD
-=======
-
-
-
-
-
+/* ===========================
+     Search results page
+   =========================== */
 
 .search-result-item img {
   width: 250px;
@@ -2021,4 +2017,4 @@ h4 { margin: 14px 0 8px 0; color: var(--muted); font-size: 1rem; }
   margin-bottom: 12px;
 }
 
->>>>>>> 83c5c3e (fix(order-summary): correct topping count and display in summary)
+

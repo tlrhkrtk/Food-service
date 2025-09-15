@@ -863,7 +863,7 @@ function renderProductDetails(product, groupId) {
       container.appendChild(message);
 
       productContent.appendChild(container);
-      
+
       details.classList.add("show");
 
       setTimeout(() => {

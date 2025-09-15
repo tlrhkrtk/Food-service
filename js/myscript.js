@@ -180,10 +180,8 @@ function renderProductDetails(product, groupId) {
   const CART_KEY = "__pd_cart_v2__";
   const EVENT_UPDATED = "cart:updated:v2";
 
-  // normalize persian/ar-numeric digits to latin digits, then parse
   function normalizeDigits(s = "") {
     if (typeof s !== "string") s = String(s || "");
-    // Persian digits ۰-۹, Arabic-Indic ٠-٩
     const map = {
       "۰":"0","۱":"1","۲":"2","۳":"3","۴":"4","۵":"5","۶":"6","۷":"7","۸":"8","۹":"9",
       "٠":"0","١":"1","٢":"2","٣":"3","٤":"4","٥":"5","٦":"6","٧":"7","٨":"8","٩":"9",
@@ -191,7 +189,6 @@ function renderProductDetails(product, groupId) {
     };
     return s.replace(/[۰-۹٠-٩,٬]/g, ch => map[ch] ?? ch);
   }
-
   const toNum = v => {
     try {
       const s = normalizeDigits(String(v || ""));
@@ -200,15 +197,28 @@ function renderProductDetails(product, groupId) {
     } catch { return 0; }
   };
 
+  function safeParse(raw) {
+    try { return JSON.parse(raw || "[]"); }
+    catch (e) { return null; }
+  }
+
   function readCart() {
-    try { return JSON.parse(localStorage.getItem(CART_KEY) || "[]"); }
-    catch { return []; }
+    try {
+      const raw = localStorage.getItem(CART_KEY);
+      const parsed = safeParse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch { return []; }
   }
 
   function writeCart(cart) {
-    localStorage.setItem(CART_KEY, JSON.stringify(cart || []));
+    try {
+      localStorage.setItem(CART_KEY, JSON.stringify(cart || []));
+    } catch (e) {
+      console.warn("writeCart error (localStorage):", e);
+      try { localStorage.setItem(CART_KEY, "[]"); } catch(e2) {}
+    }
     updateBadges();
-    w.dispatchEvent(new CustomEvent(EVENT_UPDATED, { detail: { cart: cart || [] } }));
+    try { w.dispatchEvent(new CustomEvent(EVENT_UPDATED, { detail: { cart: cart || [] } })); } catch(e){}
   }
 
   function buildPriceKey(item) {
@@ -216,11 +226,11 @@ function renderProductDetails(product, groupId) {
     const p = item.product_id ?? "";
     const s = (item.size_label ?? "").toString();
     const pr = toNum(item.price_number || item.price || 0);
-    return `${g}::${p}::${s}::${pr}`;
+    const toppingsKey = (Array.isArray(item.toppings) ? item.toppings.slice().sort().join("|") : "");
+    return `${g}::${p}::${s}::${pr}::${toppingsKey}`;
   }
 
   function showToast(text, opts = {}) {
-    // minimal toast, inline styles to avoid   
     let c = d.getElementById("pd-toast-container");
     if (!c) {
       c = d.createElement("div");
@@ -240,7 +250,6 @@ function renderProductDetails(product, groupId) {
       });
       d.body.appendChild(c);
     }
-
     const el = d.createElement("div");
     el.className = "pd-toast";
     el.textContent = text;
@@ -261,21 +270,17 @@ function renderProductDetails(product, groupId) {
       fontFamily: "Vazirmatn, Tahoma, sans-serif"
     });
     c.appendChild(el);
-    requestAnimationFrame(() => {
-      el.style.opacity = "1";
-      el.style.transform = "translateY(0)";
-    });
+    requestAnimationFrame(() => { el.style.opacity = "1"; el.style.transform = "translateY(0)"; });
     const dur = opts.duration || 2200;
     setTimeout(() => {
       el.style.opacity = "0";
       el.style.transform = "translateY(10px)";
-      setTimeout(() => { el.remove(); }, 300);
+      setTimeout(() => el.remove(), 320);
     }, dur);
   }
 
   function addToCart(item) {
-    // normalize item
-    const cart = readCart();
+    const arr = readCart();
     const norm = {
       group_id: item.group_id,
       product_id: item.product_id,
@@ -285,17 +290,18 @@ function renderProductDetails(product, groupId) {
       price_text: item.price_text || String(item.price_number || ""),
       qty: Math.max(1, Math.floor(Number(item.qty) || 1)),
       size_label: item.size_label || "",
+      toppings: Array.isArray(item.toppings) ? item.toppings.slice() : (item.toppings ? [item.toppings] : []),
       price_key: ""
     };
     norm.price_key = buildPriceKey(norm);
 
-    const idx = cart.findIndex(c => c.price_key === norm.price_key);
+    const idx = arr.findIndex(c => c.price_key === norm.price_key);
     if (idx > -1) {
-      cart[idx].qty = (Number(cart[idx].qty) || 0) + norm.qty;
+      arr[idx].qty = (Number(arr[idx].qty) || 0) + norm.qty;
     } else {
-      cart.push(norm);
+      arr.push(norm);
     }
-    writeCart(cart);
+    writeCart(arr);
     showToast(`${norm.product_name} (${norm.size_label || "سایز"}) به سبد اضافه شد — تعداد: ${norm.qty}`);
     return norm;
   }
@@ -340,12 +346,10 @@ function renderProductDetails(product, groupId) {
   function updateBadges() {
     const totalCount = getCount();
     d.querySelectorAll("[data-cart-badge]").forEach(el => {
-      el.textContent = totalCount;
-      el.setAttribute("aria-hidden", totalCount === 0 ? "false" : "false");
+      try { el.textContent = String(totalCount); } catch(e){}
     });
   }
 
-  // expose API
   w.__PD_CART_V2 = {
     readCart,
     writeCart,
@@ -358,11 +362,12 @@ function renderProductDetails(product, groupId) {
     formatCurrency,
     updateBadges,
     EVENT_UPDATED,
-    showToast 
+    showToast
   };
 
   d.addEventListener("DOMContentLoaded", updateBadges);
 })(window, document);
+
 // ================================================================================================================
 
 //Navbar cart link (badge + redirect)
@@ -418,80 +423,87 @@ function renderProductDetails(product, groupId) {
     }
 
     function renderCart() {
-      const cart = CART.readCart();
-      CART.updateBadges();
+        const cart = CART.readCart();
+        CART.updateBadges();
 
-      if (!cart.length) {
-        renderEmpty();
-        return;
-      }
+        if (!cart || !cart.length) {
+            renderEmpty();
+            return;
+        }
 
-      // table
-      const table = el("table", { className: "cart-items" });
-      const thead = el("thead");
-      thead.innerHTML = `<tr><th>تصویر</th><th>محصول</th><th>قیمت</th><th>تعداد</th><th></th></tr>`;
-      table.appendChild(thead);
-      const tbody = el("tbody");
+        // build table
+        const table = el("table", { className: "cart-items" });
+        const thead = el("thead");
+        thead.innerHTML = `<tr><th>تصویر</th><th>محصول</th><th>قیمت</th><th>تعداد</th><th></th></tr>`;
+        table.appendChild(thead);
+        const tbody = el("tbody");
 
-      cart.forEach((it, idx) => {
+        cart.forEach((it, idx) => {
         const tr = el("tr");
 
-        // image
+        // Image
         const tdImg = el("td");
-        const img = el("img", { src: it.image || "../images/product-01-542x448.png", alt: it.product_name });
+        const img = el("img", { src: it.image || "../images/product-01-542x448.png", alt: it.product_name || "" });
         img.width = 84; img.height = 64; img.style.objectFit = "cover"; img.style.borderRadius = "8px";
         tdImg.appendChild(img);
 
-        // name + size
+        // Product name + size + accessories
         const tdName = el("td");
-        const title = el("div", { innerHTML: `<strong>${it.product_name}</strong>` });
-        const meta = el("div", { innerHTML: `<span class="small-muted">${it.size_label || ""}</span>` });
-        tdName.appendChild(title); tdName.appendChild(meta);
 
-        // price
-        const tdPrice = el("td", { innerHTML: CART.formatCurrency(it.price_number) });
+        // Title
+        const title = el("div", { innerHTML: `<strong>${it.product_name || "محصول"}</strong>` });
+        tdName.appendChild(title);
 
-        // qty controls
+        // Size (if present)
+        if (it.size_label) {
+            const sizeMeta = el("div", { innerHTML: `<span class="small-muted">${it.size_label}</span>` });
+            tdName.appendChild(sizeMeta);
+        }
+
+        // leftovers — badges
+        if (it.toppings && Array.isArray(it.toppings) && it.toppings.length) {
+            const toppingsWrap = el("div", { className: "toppings-list-inline" });
+            const label = el("span", { className: "topping-label", innerHTML: "مخلفات:" });
+            toppingsWrap.appendChild(label);
+
+            it.toppings.forEach(tname => {
+                const b = el("span", { className: "topping-badge", innerHTML: tname });
+                toppingsWrap.appendChild(b);
+            });
+            tdName.appendChild(toppingsWrap);
+        }
+
+        // Price
+        const tdPrice = el("td", { innerHTML: CART.formatCurrency(it.price_number || 0) });
+
+        // Quantity controls
         const tdQty = el("td");
         const qtyBox = el("div", { className: "qty-controls" });
         const btnDec = el("button", { type: "button", innerHTML: "−", title: "کم کردن" });
-        const inp = el("input", { value: String(it.qty), className: "qty-input", type: "number", min: "1", inputMode: "numeric" });
-        const btnInc = el("button", { type: "button", innerHTML: "+", title: "افزودن" });
+        const inp = el("input", { value: String(it.qty || 1), className: "qty-input", type: "number", min: "1", inputMode: "numeric" });
+        const btnInc = el("button", { type: "button", innerHTML: "+", title: "افزایش" });
 
         btnDec.addEventListener("click", () => {
-          const newQty = Math.max(0, Number(inp.value) - 1);
-          if (newQty <= 0) {
-            CART.removeItemByIndex(idx);
-            renderCart();
-            return;
-          }
-          CART.setQtyByIndex(idx, newQty);
-          renderCart();
-        });
-        btnInc.addEventListener("click", () => {
-          const newQty = Math.max(1, Number(inp.value) + 1);
-          CART.setQtyByIndex(idx, newQty);
-          renderCart();
-        });
-        inp.addEventListener("change", () => {
-          let v = Number(inp.value) || 1;
-          if (v < 1) v = 1;
-          CART.setQtyByIndex(idx, v);
-          renderCart();
+            const newQty = Math.max(0, Number(inp.value) - 1);
+            if (newQty <= 0) { CART.removeItemByIndex(idx); renderCart(); return; }
+            CART.setQtyByIndex(idx, newQty); renderCart();
+            });
+            btnInc.addEventListener("click", () => {
+            const newQty = Math.max(1, Number(inp.value) + 1);
+            CART.setQtyByIndex(idx, newQty); renderCart();
+            });
+            inp.addEventListener("change", () => {
+            let v = Number(inp.value) || 1; if (v < 1) v = 1;
+            CART.setQtyByIndex(idx, v); renderCart();
         });
 
-        qtyBox.appendChild(btnDec);
-        qtyBox.appendChild(inp);
-        qtyBox.appendChild(btnInc);
+        qtyBox.appendChild(btnDec); qtyBox.appendChild(inp); qtyBox.appendChild(btnInc);
         tdQty.appendChild(qtyBox);
 
-        // remove
+        // Remove
         const tdRemove = el("td");
         const btnRem = el("button", { className: "btn-link", innerHTML: "حذف" });
-        btnRem.addEventListener("click", () => {
-          CART.removeItemByIndex(idx);
-          renderCart();
-        });
+        btnRem.addEventListener("click", () => { CART.removeItemByIndex(idx); renderCart(); });
         tdRemove.appendChild(btnRem);
 
         tr.appendChild(tdImg);
@@ -501,14 +513,14 @@ function renderProductDetails(product, groupId) {
         tr.appendChild(tdRemove);
 
         tbody.appendChild(tr);
-      });
+    });
 
-      table.appendChild(tbody);
-      body.innerHTML = "";
-      body.appendChild(table);
+        table.appendChild(tbody);
+        body.innerHTML = "";
+        body.appendChild(table);
 
-      const total = CART.getTotal();
-      summary.innerHTML = `<div class="cart-summary"><div class="total-row"><span>جمع کل</span><span id="cart-total">${CART.formatCurrency(total)}</span></div></div>`;
+        const total = CART.getTotal();
+        summary.innerHTML = `<div class="cart-summary"><div class="total-row"><span>جمع کل</span><span id="cart-total">${CART.formatCurrency(total)}</span></div></div>`;
     }
 
     clearBtn?.addEventListener("click", () => {
@@ -1041,7 +1053,7 @@ function renderProductDetails(product, groupId) {
 
 // =================================================================================================================
 
-//Food self-service script 
+// Food self-service script  (Final: topping amount cycling + x1 shown in summary + xN preserved in cart)
 const JSON_PATH = "../data.json";
 const PLACEHOLDER = "";
 const LS_KEY = "__pd_cart_v2__";
@@ -1050,9 +1062,12 @@ const CART_PAGE = "/pages/cart.html";
 
 let MENU = null;
 let currentProduct = null;
-let dropped = [];
+let dropped = []; // { name, x, y, amount }
 let sizeIndex = 0;
 let currentGroupId = null;
+
+// Keep amounts for toppings even if not dropped on canvas
+let toppingAmounts = {}; 
 
 function fmtCurrency(n) {
   try { return Number(n).toLocaleString() + " تومان"; }
@@ -1099,6 +1114,374 @@ async function loadMenu() {
   }
 }
 
+// topping helpers 
+function getMenuToppingByName(name) {
+  return (MENU && MENU.toppings) ? (MENU.toppings.find(t => t.name === name)) : null;
+}
+function getToppingAmount(name) {
+  return Number(toppingAmounts[name] || 0);
+}
+function setToppingAmount(name, amount) {
+  amount = Math.max(0, Math.min(3, Number(amount || 0)));
+  if (amount <= 0) {
+    delete toppingAmounts[name];
+  } else {
+    toppingAmounts[name] = amount;
+  }
+  // sync dropped entry if exists
+  const dr = dropped.find(d => d.name === name);
+  if (dr) dr.amount = amount;
+  updateToppingCardUI(name);
+  renderDropped();
+  refreshSummary();
+}
+function toggleToppingAmount(name) {
+  const cur = getToppingAmount(name);
+  const next = (cur + 1) % 4; // 0->1->2->3->0
+  setToppingAmount(name, next);
+}
+function resetToppingsState() {
+  toppingAmounts = {};
+  dropped = [];
+  document.querySelectorAll(".topping-card").forEach(c => {
+    c.classList.remove("in-canvas");
+    updateToppingCardUI(c.dataset.name);
+  });
+  renderDropped();
+  refreshSummary();
+}
+function updateToppingCardUI(name) {
+  const card = document.querySelector(`.topping-card[data-name="${name}"]`);
+  const amt = getToppingAmount(name);
+  if (!card) return;
+  let badge = card.querySelector(".amount-badge");
+  if (!badge) {
+    badge = document.createElement("span");
+    badge.className = "amount-badge";
+    badge.style.padding = "2px 6px";
+    badge.style.borderRadius = "12px";
+    badge.style.fontSize = "12px";
+    badge.style.marginLeft = "6px";
+    badge.style.display = "inline-block";
+    badge.style.minWidth = "28px";
+    badge.style.textAlign = "center";
+    badge.setAttribute("aria-hidden","true");
+    card.appendChild(badge);
+  }
+  if (amt <= 0) {
+    badge.textContent = "";
+    badge.style.opacity = "0";
+    card.classList.remove("selected-topping");
+  } else {
+    badge.textContent = (amt > 1) ? `x${amt}` : `x1`;
+    badge.style.opacity = "1";
+    card.classList.add("selected-topping");
+  }
+}
+
+// render toppings list (cards) 
+function renderToppingsForProduct(p) {
+  const container = document.getElementById("toppingsContainer");
+  if (!container || !MENU || !p) return;
+  container.innerHTML = "";
+
+  (p.available_toppings || []).forEach(name=>{
+    const topping = (MENU.toppings || []).find(t => t.name === name);
+    if(!topping) return;
+
+    const card = document.createElement("div");
+    card.className = "topping-card";
+    card.draggable = true;
+    card.dataset.name = name;
+    card.innerHTML = `
+      <img src="${topping.image || PLACEHOLDER}" alt="${name}">
+      <div class="topping-card-body">
+        <div class="topping-name">${name}</div>
+        <div class="topping-price" style="color:var(--muted);margin-top:6px">${fmtCurrency(topping.price)}</div>
+      </div>
+    `;
+    // click -> toggle amount cycle (0->1->2->3->0)
+    card.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleToppingAmount(name);
+    });
+
+    // drag start -> set data for drop
+    card.ondragstart = e => e.dataTransfer.setData("text/plain", name);
+
+    container.appendChild(card);
+    updateToppingCardUI(name);
+  });
+
+  // canvas drag/drop
+  const canvas = document.getElementById("baseCanvas");
+  if (canvas) {
+    canvas.ondragover = e => e.preventDefault();
+    canvas.ondrop = e => {
+      e.preventDefault();
+      const name = e.dataTransfer.getData("text/plain");
+      if (!name) return;
+      const rect = canvas.getBoundingClientRect();
+      // DO NOT set amount to 1 on drop — leave default (user must click to set x1/x2/x3)
+      addToppingAt(name, e.clientX - rect.left, e.clientY - rect.top, false);
+    };
+  }
+
+}
+
+// canvas / dropped 
+function addToppingAt(name, x, y, setAmountToOne = false) {
+  if (dropped.find(d => d.name === name)) {
+    // already on canvas, but if user dragged again we might want to move it - ignoring for now
+    return;
+  }
+  const canvas = document.getElementById("baseCanvas");
+  if (!canvas) return;
+  const rect = canvas.getBoundingClientRect();
+  const newItem = { name, x: (x/rect.width)*100, y: (y/rect.height)*100, amount: 0 };
+  dropped.push(newItem);
+
+  // if dragged/dropped, ensure amount default is 1
+  if (setAmountToOne) {
+    setToppingAmount(name, Math.max(1, getToppingAmount(name)));
+  } else {
+    if (getToppingAmount(name) > 0) newItem.amount = getToppingAmount(name);
+  }
+
+  const card = document.querySelector(`.topping-card[data-name="${name}"]`);
+  if (card) card.classList.add("in-canvas");
+
+  renderDropped();
+  refreshSummary();
+}
+
+function renderDropped() {
+  const canvas = document.getElementById("baseCanvas");
+  if (!canvas) return;
+  canvas.innerHTML = "";
+
+  dropped.forEach(d => {
+    const t = (MENU.toppings || []).find(tt => tt.name === d.name);
+    const img = document.createElement("img");
+    img.src = t ? t.image : PLACEHOLDER;
+    img.className = "dropped-item";
+    img.style.left = d.x + "%";
+    img.style.top = d.y + "%";
+    img.setAttribute("draggable","false");
+    img.alt = d.name;
+
+    const wrap = document.createElement("div");
+    wrap.className = "dropped-wrap";
+    wrap.style.position = "absolute";
+    wrap.style.left = d.x + "%";
+    wrap.style.top = d.y + "%";
+    wrap.style.transform = "translate(-50%,-50%)";
+    wrap.style.pointerEvents = "none";
+
+    img.style.width = "48px";
+    img.style.height = "48px";
+    img.style.objectFit = "contain";
+    img.style.pointerEvents = "auto";
+
+    const badge = document.createElement("span");
+    const amt = getToppingAmount(d.name);
+    badge.className = "dropped-amount-badge";
+    badge.style.display = (amt > 0) ? "inline-block" : "none";
+    badge.style.minWidth = "28px";
+    badge.style.textAlign = "center";
+    badge.style.padding = "2px 6px";
+    badge.style.borderRadius = "10px";
+    badge.style.fontSize = "12px";
+    badge.style.marginTop = "-8px";
+    badge.textContent = (amt > 1) ? `x${amt}` : (amt === 1 ? `x1` : "");
+    badge.setAttribute("aria-hidden","true");
+
+    wrap.appendChild(img);
+    wrap.appendChild(badge);
+    canvas.appendChild(wrap);
+  });
+}
+
+//pricing & summary 
+function calculateTotalPrice() {
+  if (!currentProduct) return 0;
+  const base = Number(currentProduct.product_price ? currentProduct.product_price[sizeIndex] || 0 : 0) || 0;
+
+  let toppingsCost = 0;
+  Object.keys(toppingAmounts || {}).forEach(name => {
+    const amt = Number(toppingAmounts[name] || 0);
+    if (amt <= 0) return;
+    const t = getMenuToppingByName(name);
+    if (t) toppingsCost += Number(t.price || 0) * amt;
+  });
+
+  let discount = 0;
+  if(MENU.Discounts) {
+    const disc = (MENU.Discounts || []).find(d => Number(d.group_id) === Number(currentGroupId));
+    if(disc) discount = Number(disc.discount || 0);
+  }
+  const total = base + toppingsCost;
+  return Math.round(total - (total * discount / 100));
+}
+
+function refreshSummary() {
+  const os = document.getElementById("orderSummary");
+  if (!os) return;
+  if(!currentProduct){ os.textContent="هیچ محصولی انتخاب نشده"; return; }
+
+  const base = Number(currentProduct.product_price ? currentProduct.product_price[sizeIndex] || 0 : 0) || 0;
+  let toppingsCost = 0;
+  let energy = Number(currentProduct.product_energy || 0);
+
+  Object.keys(toppingAmounts || {}).forEach(name => {
+    const amt = Number(toppingAmounts[name] || 0);
+    if (amt <= 0) return;
+    const t = getMenuToppingByName(name);
+    if (t) {
+      toppingsCost += Number(t.price || 0) * amt;
+      energy += Number(t.energy || 0) * amt;
+    }
+  });
+
+  let discount = 0;
+  if(MENU.Discounts) {
+    const disc = (MENU.Discounts || []).find(d => Number(d.group_id) === Number(currentGroupId));
+    if(disc) discount = Number(disc.discount || 0);
+  }
+
+  const total = base + toppingsCost;
+  const finalPrice = Math.round(total - (total*discount/100));
+
+  // build toppings html list (always show xN including x1, x1 gets special class)
+  // build toppings html list (show even if only dropped without amount)
+  // build toppings html list (show even if only dropped without amount)
+  let toppingsHtml = "";
+  const allSelected = new Set([
+    ...Object.keys(toppingAmounts || {}),
+    ...dropped.map(d => d.name)
+  ]);
+  const selectedNames = Array.from(allSelected);      
+
+  if (allSelected.size) {
+    toppingsHtml = `<div class="selected-toppings"><strong>مخلفات انتخابی:</strong><ul>`;
+    allSelected.forEach(n => {
+      const a = Number(toppingAmounts[n] || 0);
+      let multSpan = "";
+      if (a > 0) {
+        multSpan = `<span class="topping-mult ${a === 1 ? 'x1' : ''}">x${a}</span>`;
+      } else {
+        multSpan = `<span class="topping-mult no-amount"></span>`;
+      }
+      toppingsHtml += `<li>${n} ${multSpan}</li>`;
+    });
+    toppingsHtml += `</ul></div>`;
+  } else {
+    toppingsHtml = `<div class="selected-toppings muted">هیچ مخلفاتی انتخاب نشده</div>`;
+  }
+
+
+  if (allSelected.size) {
+    toppingsHtml = `<div class="selected-toppings"><strong>مخلفات انتخابی:</strong><ul>`;
+    allSelected.forEach(n => {
+      const a = Number(toppingAmounts[n] || 0);
+      let multSpan = "";
+      if (a > 0) {
+        multSpan = `<span class="topping-mult ${a === 1 ? 'x1' : ''}">x${a}</span>`;
+      } else {
+        multSpan = `<span class="topping-mult no-amount"></span>`;
+      }
+      toppingsHtml += `<li>${n} ${multSpan}</li>`;
+    });
+    toppingsHtml += `</ul></div>`;
+  } else {
+    toppingsHtml = `<div class="selected-toppings muted">هیچ مخلفاتی انتخاب نشده</div>`;
+  }
+
+  os.innerHTML=`
+    <div><span>قیمت پایه:</span> <span>${fmtCurrency(base)}</span></div>
+    <div><span>تعداد مخلفات انتخاب‌شده:</span> <span>${selectedNames.length}</span></div>
+    <div><span>هزینه مخلفات:</span> <span>${fmtCurrency(toppingsCost)}</span></div>
+    <div><span>تخفیف گروه:</span> <span>${discount}%</span></div>
+    <div><strong>جمع کل: ${fmtCurrency(finalPrice)}</strong></div>
+    <div><span class="energy">انرژی تخمینی:</span> <span class="energy">${energy} kcal</span></div>
+    ${toppingsHtml}
+  `;
+}
+
+//qty controls 
+function initQtyControls() {
+  const qtyEl = document.getElementById("qtyValue");
+  const plus = document.getElementById("qtyPlus");
+  const minus = document.getElementById("qtyMinus");
+  if(!qtyEl || !plus || !minus) return;
+
+  plus.addEventListener("click", ()=>{ qtyEl.value = Math.max(1, Number(qtyEl.value||1)+1); });
+  minus.addEventListener("click", ()=>{ qtyEl.value = Math.max(1, Number(qtyEl.value||1)-1); });
+  qtyEl.addEventListener("input", ()=>{ 
+    let v = parseInt(qtyEl.value.replace(/[^\d]/g,"")||"1",10);
+    if(isNaN(v) || v<1) v = 1;
+    qtyEl.value = v;
+  });
+}
+
+// Add to Cart 
+function addCurrentToMainCart(redirectToCart=false) {
+  if(!currentProduct) return;
+  const qtyEl = document.getElementById("qtyValue");
+  if(!qtyEl) return;
+  const qty = Math.max(1, parseInt(qtyEl.value||"1",10));
+  const priceNumber = calculateTotalPrice();
+  const priceText = fmtCurrency(priceNumber);
+
+  // prepare toppings array including amounts (always include xN, even x1)
+  const toppingsArr = dropped.map(d => {
+    const a = getToppingAmount(d.name);
+    return (a > 0) ? `${d.name} x${a}` : d.name;
+  });
+
+
+  const item = {
+    group_id: currentGroupId || null,
+    product_id: currentProduct.product_id || currentProduct.id || 0,
+    product_name: currentProduct.product_name || currentProduct.name || "محصول",
+    price_text: priceText,
+    price_number: Number(priceNumber) || 0,
+    qty: qty,
+    image: currentProduct.base_image || (currentProduct.product_image && currentProduct.product_image[0]) || "",
+    size_label: currentProduct.product_type ? (currentProduct.product_type[sizeIndex] || "") : "",
+    toppings: toppingsArr
+  };
+
+  const CART = window.__PD_CART_V2;
+  if(CART && typeof CART.addToCart==="function") {
+    try { 
+      CART.addToCart(item);
+      if(typeof CART.showToast==="function") CART.showToast("محصول به سبد اضافه شد");
+      showToast("محصول به سبد اضافه شد");
+    } catch(err) { console.warn("CART.addToCart failed:",err); }
+  } else {
+    const arr = readMainCart();
+    const keyMatch = it => {
+      try {
+        const a = (it.toppings||[]).slice().sort().join("|");
+        const b = (item.toppings||[]).slice().sort().join("|");
+        return Number(it.product_id)===Number(item.product_id) &&
+               String(it.size_label)===String(item.size_label) &&
+               a===b;
+      } catch { return false; }
+    };
+    const found = arr.find(keyMatch);
+    if(found) found.qty = Number(found.qty||0) + Number(item.qty||0);
+    else arr.push(item);
+    writeMainCart(arr);
+    showToast("محصول به سبد اضافه شد");
+  }
+
+  if(redirectToCart){ setTimeout(()=>{ window.location.href = CART_PAGE; }, 350); }
+}
+
+// Product selection & rendering 
 function renderProductList() {
   const container = document.getElementById("productList");
   if (!container || !MENU) return;
@@ -1119,12 +1502,12 @@ function renderProductList() {
   });
 }
 
-// Product Selection 
 function selectProduct(p, groupId) {
   if (!p) return;
   currentProduct = p;
   currentGroupId = groupId;
   dropped = [];
+  toppingAmounts = {}; 
   sizeIndex = 0;
 
   const titleEl = document.getElementById("productTitle");
@@ -1166,190 +1549,6 @@ function selectProduct(p, groupId) {
   refreshSummary();
 }
 
-function renderToppingsForProduct(p) {
-  const container = document.getElementById("toppingsContainer");
-  if (!container || !MENU || !p) return;
-  container.innerHTML = "";
-
-  (p.available_toppings || []).forEach(name=>{
-    const topping = (MENU.toppings || []).find(t => t.name === name);
-    if(!topping) return;
-
-    const card = document.createElement("div");
-    card.className = "topping-card";
-    card.draggable = true;
-    card.dataset.name = name;
-    card.innerHTML = `
-      <img src="${topping.image || PLACEHOLDER}" alt="${name}">
-      <div>${name}</div>
-      <div style="color:var(--muted);margin-top:6px">${fmtCurrency(topping.price)}</div>
-    `;
-    card.ondragstart = e => e.dataTransfer.setData("text/plain", name);
-    card.onclick = () => addToppingAt(name, 150, 150);
-    container.appendChild(card);
-  });
-
-  const canvas = document.getElementById("baseCanvas");
-  if(canvas) {
-    canvas.ondragover = e => e.preventDefault();
-    canvas.ondrop = e => {
-      e.preventDefault();
-      const name = e.dataTransfer.getData("text/plain");
-      const rect = canvas.getBoundingClientRect();
-      addToppingAt(name, e.clientX - rect.left, e.clientY - rect.top);
-    };
-  }
-}
-
-function addToppingAt(name, x, y) {
-  if (dropped.find(d => d.name === name)) return;
-  const canvas = document.getElementById("baseCanvas");
-  if (!canvas) return;
-  const rect = canvas.getBoundingClientRect();
-  dropped.push({ name, x: (x/rect.width)*100, y: (y/rect.height)*100 });
-  renderDropped();
-  refreshSummary();
-
-  const card = document.querySelector(`.topping-card[data-name="${name}"]`);
-  if(card) {
-    card.style.pointerEvents = "none";
-    card.style.opacity = "0.5";
-    card.draggable = false;
-  }
-}
-
-// Display the contents on the canvas
-function renderDropped() {
-  const canvas = document.getElementById("baseCanvas");
-  if (!canvas) return;
-  canvas.innerHTML = "";
-
-  dropped.forEach(d => {
-    const t = (MENU.toppings || []).find(tt => tt.name === d.name);
-    const img = document.createElement("img");
-    img.src = t ? t.image : PLACEHOLDER;
-    img.className = "dropped-item";
-    img.style.left = d.x + "%";
-    img.style.top = d.y + "%";
-    canvas.appendChild(img);
-  });
-}
-
-// Calculate price 
-function calculateTotalPrice() {
-  if (!currentProduct) return 0;
-  const base = Number(currentProduct.product_price ? currentProduct.product_price[sizeIndex] || 0 : 0) || 0;
-  let toppingsCost = 0;
-  dropped.forEach(d => {
-    const t = (MENU.toppings || []).find(tt => tt.name === d.name);
-    if(t) toppingsCost += Number(t.price || 0);
-  });
-  let discount = 0;
-  if(MENU.Discounts) {
-    const disc = (MENU.Discounts || []).find(d => Number(d.group_id) === Number(currentGroupId));
-    if(disc) discount = Number(disc.discount || 0);
-  }
-  const total = base + toppingsCost;
-  return Math.round(total - (total * discount / 100));
-}
-
-function refreshSummary() {
-  const os = document.getElementById("orderSummary");
-  if (!os) return;
-  if(!currentProduct){ os.textContent="هیچ محصولی انتخاب نشده"; return; }
-
-  const base = Number(currentProduct.product_price ? currentProduct.product_price[sizeIndex] || 0 : 0) || 0;
-  let toppingsCost = 0;
-  let energy = Number(currentProduct.product_energy || 0);
-
-  dropped.forEach(d=>{
-    const t = (MENU.toppings || []).find(tt => tt.name === d.name);
-    if(t){ toppingsCost += Number(t.price||0); energy += Number(t.energy||0); }
-  });
-
-  let discount = 0;
-  if(MENU.Discounts) {
-    const disc = (MENU.Discounts || []).find(d => Number(d.group_id) === Number(currentGroupId));
-    if(disc) discount = Number(disc.discount || 0);
-  }
-
-  const total = base + toppingsCost;
-  const finalPrice = Math.round(total - (total*discount/100));
-
-  os.innerHTML=`
-    <div><span>قیمت پایه:</span> <span>${fmtCurrency(base)}</span></div>
-    <div><span>تعداد مخلفات:</span> <span>${dropped.length}</span></div>
-    <div><span>هزینه مخلفات:</span> <span>${fmtCurrency(toppingsCost)}</span></div>
-    <div><span>تخفیف گروه:</span> <span>${discount}%</span></div>
-    <div><strong>جمع کل: ${fmtCurrency(finalPrice)}</strong></div>
-    <div><span class="energy">انرژی کل:</span> <span class="energy">${energy} kcal</span></div>
-  `;
-
-}
-
-function initQtyControls() {
-  const qtyEl = document.getElementById("qtyValue");
-  const plus = document.getElementById("qtyPlus");
-  const minus = document.getElementById("qtyMinus");
-  if(!qtyEl || !plus || !minus) return;
-
-  plus.addEventListener("click", ()=>{ qtyEl.value = Math.max(1, Number(qtyEl.value||1)+1); });
-  minus.addEventListener("click", ()=>{ qtyEl.value = Math.max(1, Number(qtyEl.value||1)-1); });
-  qtyEl.addEventListener("input", ()=>{
-    let v = parseInt(qtyEl.value.replace(/[^\d]/g,"")||"1",10);
-    if(isNaN(v) || v<1) v = 1;
-    qtyEl.value = v;
-  });
-}
-
-//  Add to Cart 
-function addCurrentToMainCart(redirectToCart=false) {
-  if(!currentProduct) return;
-  const qtyEl = document.getElementById("qtyValue");
-  if(!qtyEl) return;
-  const qty = Math.max(1, parseInt(qtyEl.value||"1",10));
-  const priceNumber = calculateTotalPrice();
-  const priceText = fmtCurrency(priceNumber);
-  const item = {
-    group_id: currentGroupId || null,
-    product_id: currentProduct.product_id || currentProduct.id || 0,
-    product_name: currentProduct.product_name || currentProduct.name || "محصول",
-    price_text: priceText,
-    price_number: Number(priceNumber) || 0,
-    qty: qty,
-    image: currentProduct.base_image || (currentProduct.product_image && currentProduct.product_image[0]) || "",
-    size_label: currentProduct.product_type ? (currentProduct.product_type[sizeIndex] || "") : "",
-    toppings: dropped.map(d=>d.name||d)
-  };
-
-  const CART = window.__PD_CART_V2;
-  if(CART && typeof CART.addToCart==="function") {
-    try { 
-      CART.addToCart(item);
-      if(typeof CART.showToast==="function") CART.showToast("محصول به سبد اضافه شد");
-      showToast("محصول به سبد اضافه شد");
-    } catch(err) { console.warn("CART.addToCart failed:",err); }
-  } else {
-    const arr = readMainCart();
-    const keyMatch = it => {
-      try {
-        const a = (it.toppings||[]).slice().sort().join("|");
-        const b = (item.toppings||[]).slice().sort().join("|");
-        return Number(it.product_id)===Number(item.product_id) &&
-               String(it.size_label)===String(item.size_label) &&
-               a===b;
-      } catch { return false; }
-    };
-    const found = arr.find(keyMatch);
-    if(found) found.qty = Number(found.qty||0) + Number(item.qty||0);
-    else arr.push(item);
-    writeMainCart(arr);
-    showToast("محصول به سبد اضافه شد");
-  }
-
-  if(redirectToCart){ setTimeout(()=>{ window.location.href = CART_PAGE; }, 350); }
-}
-
 // Initial Setup
 document.addEventListener("DOMContentLoaded", async ()=>{
   initQtyControls();
@@ -1365,14 +1564,14 @@ document.addEventListener("DOMContentLoaded", async ()=>{
 
   const clearBtn = document.getElementById("clearBtn");
   if(clearBtn) clearBtn.addEventListener("click", ()=>{
+    toppingAmounts = {};
     dropped = [];
     renderDropped();
     refreshSummary();
 
     document.querySelectorAll(".topping-card").forEach(card => {
-      card.style.pointerEvents = "auto";
-      card.style.opacity = "1";
-      card.draggable = true;
+      card.classList.remove("in-canvas");
+      updateToppingCardUI(card.dataset.name);
     });
   });
 
@@ -1382,6 +1581,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
     addCurrentToMainCart(AUTO_REDIRECT_ON_ADD);
   });
 });
+
 })();
 
 

@@ -140,7 +140,7 @@ if (closeBtn) {
       details.classList.remove("show");
       details.setAttribute("aria-hidden", "true");
     }
-    try { history.replaceState(null, "", location.pathname); } catch (e) {}
+    //try { history.replaceState(null, "", location.pathname); } catch (e) {}
   });
 }
 
@@ -302,7 +302,8 @@ function renderProductDetails(product, groupId) {
       arr.push(norm);
     }
     writeCart(arr);
-    showToast(`${norm.product_name} (${norm.size_label || "سایز"}) به سبد اضافه شد — تعداد: ${norm.qty}`);
+
+    showToast(`${norm.product_name} (${norm.size_label || "سایز"}) به سبد اضافه شد — تعداد: ${norm.qty}`); //=> { duration: 8000 })
     return norm;
   }
 
@@ -404,7 +405,10 @@ function renderProductDetails(product, groupId) {
   function q(id){ return document.getElementById(id); }
   function el(tag, props = {}, children = []) {
     const e = document.createElement(tag);
-    Object.keys(props).forEach(k => { if (k in e) e[k] = props[k]; else e.setAttribute(k, props[k]); });
+    Object.keys(props).forEach(k => { 
+      if (k in e) e[k] = props[k]; 
+      else e.setAttribute(k, props[k]); 
+    });
     (children || []).forEach(c => e.appendChild(typeof c === "string" ? document.createTextNode(c) : c));
     return e;
   }
@@ -831,22 +835,64 @@ function renderProductDetails(product, groupId) {
       });
   }
 
-  function showProductDetails(product) {
-    productContent.innerHTML = "";
+    function clearProductContent() {
+    while (productContent.firstChild) {
+      productContent.removeChild(productContent.firstChild);
+    }
+  }
 
-    const titleEl = document.createElement("h3");
-    titleEl.textContent = product.product_name;
-    productContent.appendChild(titleEl);
+  function showSearchResults(results) {
+    clearProductContent();     
 
-    const link = document.createElement("a");
-    link.href = `../pages/product.html?group=${product.group_id}&product=${product.product_id}`;
+    if (!results.length) {
+      clearProductContent();     
 
-    const img = document.createElement("img");
-    img.src = product.product_image[0] || "";
-    img.alt = product.product_name;
+      const container = document.createElement("div");
+      container.className = "no-results";
 
-    link.appendChild(img);
-    productContent.appendChild(link);
+      const emoji = document.createElement("div");
+      emoji.textContent = "😕";
+      emoji.style.fontSize = "50px";
+      emoji.style.textAlign = "center";
+      container.appendChild(emoji);
+
+      const message = document.createElement("p");
+      message.textContent = "متأسفیم، محصولی پیدا نشد. لطفاً دوباره تلاش کنید!";
+      message.style.textAlign = "center";
+      message.style.marginTop = "10px";
+      container.appendChild(message);
+
+      productContent.appendChild(container);
+
+      // مهم: نمایش کادر حتی وقتی چیزی پیدا نشده
+      details.classList.add("show");
+
+      setTimeout(() => {
+        details.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 50);
+
+      return;
+    }
+
+    results.forEach(product => {
+      const itemEl = document.createElement("div");
+      itemEl.className = "search-result-item";
+
+      const titleEl = document.createElement("h3");
+      titleEl.textContent = product.product_name;
+      itemEl.appendChild(titleEl);
+
+      const link = document.createElement("a");
+      link.href = `../pages/product.html?group=${product.group_id}&product=${product.product_id}`;
+
+      const img = document.createElement("img");
+      img.src = product.product_image[0] || "";
+      img.alt = product.product_name;
+      link.appendChild(img);
+
+      itemEl.appendChild(link);
+      productContent.appendChild(itemEl);
+    });
 
     details.classList.add("show");
 
@@ -870,11 +916,7 @@ function renderProductDetails(product, groupId) {
         });
       });
 
-      if (results.length) {
-        showProductDetails(results[0]);
-      } else {
-        alert("محصولی پیدا نشد");
-      }
+      showSearchResults(results);
     });
   }
 
@@ -883,9 +925,6 @@ function renderProductDetails(product, groupId) {
     e.preventDefault();
     searchProducts();
   });
-
-  const searchBtn = form.querySelector(".search-btn");
-  searchBtn?.addEventListener("click", searchProducts);
 
   closeBtn?.addEventListener("click", () => {
     details.classList.remove("show");

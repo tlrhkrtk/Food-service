@@ -2005,3 +2005,20 @@ h4 { margin: 14px 0 8px 0; color: var(--muted); font-size: 1rem; }
   transform: translateY(-3px);
 }
 
+<<<<<<< HEAD
+=======
+
+
+
+
+
+
+.search-result-item img {
+  width: 250px;
+  height: 250px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+>>>>>>> 83c5c3e (fix(order-summary): correct topping count and display in summary)
